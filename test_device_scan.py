@@ -66,8 +66,17 @@ def get_disk_info():
     if meminfo:
         info['memory'] = meminfo.split('\n')
     
-    # Get CPU info
-    cpuinfo = run_command("cat /proc/cpuinfo | grep 'model name' | head -1", "CPU info")
+    # Get CPU info (portable across x86/ARM, including macOS hosts via Docker)
+    # Try multiple sources since ARM cpuinfo may not have 'model name'
+    cpuinfo = run_command(
+        "cat /proc/cpuinfo | grep -m1 -E 'model name|Hardware|Processor' | sed 's/^.*:\\s*//'",
+        "CPU info (/proc/cpuinfo)")
+    if not cpuinfo:
+        cpuinfo = run_command(
+            "lscpu | grep -m1 -E 'Model name|Architecture' | sed 's/^.*:\\s*//'",
+            "CPU info (lscpu)")
+    if not cpuinfo:
+        cpuinfo = run_command("uname -m", "CPU architecture (uname)")
     if cpuinfo:
         info['cpu'] = cpuinfo
     
