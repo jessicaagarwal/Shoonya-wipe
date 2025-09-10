@@ -17,19 +17,19 @@ SafeErasePro is a data wiping tool that runs on Linux. We develop on Windows/Mac
 git pull
 
 # 2. Start development environment
-docker-compose up -d
+docker compose up -d
 
 # 3. Test that everything works
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 ```
 
 ### **While Developing**
 ```bash
 # Test your changes
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 
 # Stop when done
-docker-compose down
+docker compose down
 ```
 
 ### **Save Your Work**
@@ -82,7 +82,7 @@ SafeErasePro/
 ### **Development Testing (Windows/Mac)**
 ```bash
 # Test device scanner
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 ```
 
 ### **Real Device Testing (Linux Laptop)**

@@ -83,10 +83,10 @@ git clone https://github.com/YOUR_USERNAME/SafeErasePro.git
 cd SafeErasePro
 
 # Start development environment
-docker-compose up --build
+docker compose up --build
 
 # Test the setup
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 ```
 
 #### **Linux (Testing)**
@@ -125,13 +125,13 @@ SafeErasePro/
 git pull origin main
 
 # 2. Start development environment
-docker-compose up -d
+docker compose up -d
 
 # 3. Develop your features
 # Edit code in your IDE
 
 # 4. Test your changes
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 
 # 5. Commit and push
 git add .
@@ -190,13 +190,13 @@ docker run --rm -v /dev:/dev:ro saferase-pro
 ### **Development Testing (Windows/Mac)**
 ```bash
 # Run device scanner
-docker-compose exec saferase-dev python test_device_scan.py
+docker compose exec saferase-dev python test_device_scan.py
 
 # Run specific tests
-docker-compose exec saferase-dev python -m pytest tests/
+docker compose exec saferase-dev python -m pytest tests/
 
 # Run with coverage
-docker-compose exec saferase-dev python -m pytest --cov=src tests/
+docker compose exec saferase-dev python -m pytest --cov=src tests/
 ```
 
 ### **Real Device Testing (Linux)**
