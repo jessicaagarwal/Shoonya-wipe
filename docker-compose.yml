@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  saferase-dev:
+    build: .
+    container_name: saferase-pro-dev
+    volumes:
+      # Mount current directory for development
+      - .:/app
+      # Mount /dev for device access (read-only for safety)
+      - /dev:/dev:ro
+      # Mount /proc for system information
+      - /proc:/proc:ro
+      # Mount /sys for hardware information
+      - /sys:/sys:ro
+    privileged: false
+    # Run as non-root user
+    user: "1000:1000"
+    # Keep container running for development
+    tty: true
+    stdin_open: true
+    # Environment variables
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    # Override default command to keep container running
+    command: tail -f /dev/null

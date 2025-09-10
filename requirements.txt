@@ -1,0 +1,25 @@
+# SafeErasePro Python Dependencies
+
+# PDF Generation
+PyPDF2==3.0.1
+reportlab==4.0.4
+
+# Cryptography for digital signatures
+pycryptodome==3.19.0
+
+# JSON handling and data processing
+jsonschema==4.19.2
+
+# System information and hardware detection
+psutil==5.9.6
+
+# Command line interface
+click==8.1.7
+rich==13.7.0
+
+# Logging and configuration
+python-dotenv==1.0.0
+
+# Development and testing
+pytest==7.4.3
+pytest-cov==4.1.0
