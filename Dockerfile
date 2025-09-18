@@ -16,6 +16,15 @@ RUN apt-get update && apt-get install -y \
     # Additional tools
     procps \
     lsof \
+    # GUI dependencies
+    xvfb \
+    libgl1-mesa-dri \
+    libglib2.0-0 \
+    libxext6 \
+    libxrender1 \
+    libgthread-2.0-0 \
+    libxcb1 \
+    libx11-6 \
     # Clean up
     && rm -rf /var/lib/apt/lists/*
 

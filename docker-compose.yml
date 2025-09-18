@@ -5,6 +5,9 @@ services:
     volumes:
       # Mount current directory for development
       - .:/app
+    # Expose port for web GUI
+    ports:
+      - "5000:5000"
     # Keep container running for development
     tty: true
     stdin_open: true
@@ -14,3 +17,4 @@ services:
       - PYTHONUNBUFFERED=1
     # Override default command to keep container running
     command: tail -f /dev/null
+    working_dir: /app

@@ -20,6 +20,10 @@ rich==13.7.0
 # Logging and configuration
 python-dotenv==1.0.0
 
+# GUI
+PyQt5==5.15.10
+Flask==3.0.0
+
 # Development and testing
 pytest==7.4.3
 pytest-cov==4.1.0
