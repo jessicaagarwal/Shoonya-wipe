@@ -3,8 +3,10 @@ __pycache__/
 *.pyc
 
 # Local outputs and keys (dev only)
-out/
-exports/
+out/*
+!out/.gitkeep
+exports/*
+!exports/.gitkeep
 
 # IDE/editor
 .vscode/
@@ -80,7 +82,10 @@ coverage.xml
 *.crt
 *.p12
 certificates/
-keys/
+keys/*
+!keys/.gitkeep
+virtual_media/*
+!virtual_media/.gitkeep
 
 # Backup files
 *.bak

@@ -159,7 +159,10 @@
           </div>
           
           <div style="text-align: center; margin-top: 30px;">
-            <button class="btn btn-primary" id="next1" onclick="goToMethod()" disabled>Continue to Method</button>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn-secondary" type="button" onclick="refreshDevices()">Refresh Devices</button>
+              <button class="btn btn-primary" id="next1" disabled>Continue to Method</button>
+            </div>
           </div>
         </div>
         
@@ -296,6 +299,10 @@
             <div class="summary-label">Method</div>
             <div class="summary-value" id="wipeMethod">—</div>
           </div>
+          <div class="summary-item" id="validationWarnings" style="display: none;">
+            <div class="summary-label">Validation Warnings</div>
+            <div class="summary-value" id="validationWarningsList"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -322,14 +329,52 @@
       }
     }
     
-    function loadDevices() {
+    function refreshDevices() {
       fetch('/api/devices')
         .then(response => response.json())
-        .then(data => {
-          devices = data;
-          renderDevices();
+        .then(data => { 
+          devices = data; 
+          const grid = document.getElementById('deviceGrid');
+          grid.innerHTML = '';
+          data.forEach(device => {
+            const card = document.createElement('div');
+            card.className = 'device-card';
+            card.onclick = () => {
+              document.querySelectorAll('.device-card').forEach(c => c.classList.remove('selected'));
+              card.classList.add('selected');
+              selectedDevice = device;
+              document.getElementById('selectedDevice').textContent = `/dev/${device.name}`;
+              document.getElementById('deviceType').textContent = device.model || 'Unknown';
+              document.getElementById('deviceSize').textContent = device.size || 'Unknown';
+              const btn = document.getElementById('next1');
+              btn.disabled = false;
+              btn.onclick = function(){
+                for (let i = 1; i <= 4; i++) {
+                  const stepEl = document.getElementById(`step${i}`);
+                  const panelEl = document.getElementById(`panel${i}`);
+                  if (i === 2) {
+                    stepEl.classList.add('active');
+                    panelEl.classList.add('active');
+                  } else {
+                    stepEl.classList.remove('active');
+                    panelEl.classList.remove('active');
+                  }
+                }
+              };
+            };
+            card.innerHTML = `
+              <div class="device-name">${device.name}</div>
+              <div class="device-meta">${device.model || 'Unknown Model'}</div>
+              <div class="device-size">${device.size || 'Unknown Size'}</div>
+            `;
+            grid.appendChild(card);
+          });
         })
-        .catch(error => console.error('Error loading devices:', error));
+        .catch(err => console.error('Device refresh failed:', err));
+    }
+
+    function loadDevices() {
+      refreshDevices();
     }
     
     function renderDevices() {
@@ -364,8 +409,27 @@
       document.getElementById('deviceType').textContent = device.model || 'Unknown';
       document.getElementById('deviceSize').textContent = device.size || 'Unknown';
       
-      // Enable continue button
-      document.getElementById('next1').disabled = false;
+      // Clear validation warnings initially
+      document.getElementById('validationWarnings').style.display = 'none';
+      document.getElementById('validationWarningsList').innerHTML = '';
+      
+      // Enable continue button and wire click inline to avoid scope issues
+      const btn = document.getElementById('next1');
+      btn.disabled = false;
+      btn.onclick = function(){
+        // Switch to Suggested Method
+        for (let i = 1; i <= 4; i++) {
+          const stepEl = document.getElementById(`step${i}`);
+          const panelEl = document.getElementById(`panel${i}`);
+          if (i === 2) {
+            stepEl.classList.add('active');
+            panelEl.classList.add('active');
+          } else {
+            stepEl.classList.remove('active');
+            panelEl.classList.remove('active');
+          }
+        }
+      };
     }
     
     function goToMethod() {
@@ -402,7 +466,7 @@
     function checkConfirmation() {
       const path1 = document.getElementById('confirm1').value.trim();
       const path2 = document.getElementById('confirm2').value.trim();
-      const expectedPath = selectedDevice ? `/dev/${selectedDevice.name}` : '';
+      const expectedPath = selectedDevice ? (selectedDevice.path || `/dev/${selectedDevice.name}`) : '';
       const errorEl = document.getElementById('confirmError');
       const startBtn = document.getElementById('startWipe');
       
@@ -427,7 +491,7 @@
       fetch('/api/wipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device: `/dev/${selectedDevice.name}` })
+        body: JSON.stringify({ device: selectedDevice.path || `/dev/${selectedDevice.name}` })
       })
       .then(response => response.json())
       .then(data => {
@@ -472,6 +536,16 @@
       timeRemaining.textContent = status.time_remaining || 'Calculating...';
       passInfo.textContent = `${status.current_pass || 1} of ${status.total_passes || 3}`;
       statusMessage.textContent = status.status_message || 'Processing...';
+      
+      // Update validation warnings if present
+      if (status.validation_warnings && status.validation_warnings.length > 0) {
+        const warningsEl = document.getElementById('validationWarnings');
+        const warningsListEl = document.getElementById('validationWarningsList');
+        warningsEl.style.display = 'block';
+        warningsListEl.innerHTML = status.validation_warnings.map(warning => 
+          `<div style="color: #ff6b6b; font-size: 12px; margin: 2px 0;">${warning}</div>`
+        ).join('');
+      }
     }
     
     function showComplete(status) {
@@ -490,7 +564,7 @@
       const fileTypes = [
         { name: 'wipelog.json', icon: '📄', desc: 'Raw wipe log' },
         { name: 'wipelog_signed.json', icon: '🔐', desc: 'Digitally signed log' },
-        { name: 'certificate.pdf', icon: '📋', desc: 'PDF certificate' }
+        { name: 'nist_certificate.pdf', icon: '📋', desc: 'PDF certificate' }
       ];
       
       fileTypes.forEach(file => {
@@ -509,7 +583,22 @@
     }
     
     function downloadFile(filename) {
-      window.open(`/files/out/${filename}`, '_blank');
+      // Prefer the safe /download route
+      const target = `/app/out/${filename}`;
+      fetch('/download?path=' + encodeURIComponent(target))
+        .then(resp => {
+          if (resp.status === 200) {
+            window.open('/download?path=' + encodeURIComponent(target), '_blank');
+          } else {
+            // Fallback to legacy route if needed
+            const legacy = filename === 'nist_certificate.pdf' ? 'certificate.pdf' : filename;
+            window.open(`/files/out/${legacy}`, '_blank');
+          }
+        })
+        .catch(() => {
+          const legacy = filename === 'nist_certificate.pdf' ? 'certificate.pdf' : filename;
+          window.open(`/files/out/${legacy}`, '_blank');
+        });
     }
     
     function verifySignature() {
@@ -589,6 +678,15 @@
       loadDevices();
     }
     
+    // Expose functions for buttons/console
+    window.refreshDevices = refreshDevices;
+    window.renderDevices = renderDevices;
+    window.loadDevices = loadDevices;
+    window.goToMethod = goToMethod;
+    window.goToConfirm = goToConfirm;
+    window.selectDevice = selectDevice;
+    window.setStep = setStep;
+
     // Initialize
     loadDevices();
   </script>

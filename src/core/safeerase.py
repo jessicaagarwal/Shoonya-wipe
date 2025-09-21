@@ -310,14 +310,18 @@ def render_pdf_certificate(signed_log: dict) -> str:
         from reportlab.lib.pagesizes import A4  # type: ignore
         from reportlab.pdfgen import canvas  # type: ignore
         from reportlab.lib.units import mm  # type: ignore
-    except Exception:
-        console.print("[red]reportlab not installed. Cannot create PDF certificate.[/red]")
+    except Exception as e:
+        console.print(f"[red]reportlab not installed. Cannot create PDF certificate: {e}[/red]")
         return ""
 
     out_dir = ensure_out_dir()
     pdf_path = os.path.join(out_dir, "certificate.pdf")
 
-    c = canvas.Canvas(pdf_path, pagesize=A4)
+    try:
+        c = canvas.Canvas(pdf_path, pagesize=A4)
+    except Exception as e:
+        console.print(f"[red]Failed to create certificate PDF at {pdf_path}: {e}[/red]")
+        return ""
     width, height = A4
 
     y = height - 30 * mm
@@ -349,7 +353,11 @@ def render_pdf_certificate(signed_log: dict) -> str:
         line(f"  Sig (first 32 b64 chars): {sig_b64[:32]}...")
 
     c.showPage()
-    c.save()
+    try:
+        c.save()
+    except Exception as e:
+        console.print(f"[red]Failed to save certificate PDF: {e}[/red]")
+        return ""
     return pdf_path
 
 
@@ -427,6 +435,21 @@ def render_nist_pdf_certificate(certificate: dict) -> str:
     line("Verification Status", certificate.get("verification_status", "N/A"))
     line("Completion Time", certificate.get("completion_time", "N/A"))
     line("Certificate ID", certificate.get("certificate_id", "N/A"))
+
+    # Verification Details Section
+    verification_details = certificate.get("verification_details", [])
+    if verification_details:
+        y -= 10 * mm
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(20 * mm, y, "Verification Details")
+        y -= 8 * mm
+        
+        c.setFont("Helvetica", 9)
+        for detail in verification_details:
+            c.drawString(20 * mm, y, f"• {detail}")
+            y -= 5 * mm
+            if y < 50 * mm:  # Prevent text from going off page
+                break
 
     y -= 15 * mm
 
@@ -599,6 +622,10 @@ def main() -> int:
     
     # Generate NIST-compliant PDF certificate
     pdf_path = render_nist_pdf_certificate(certificate)
+    # Ensure paths are absolute for the web to pick up
+    log_path = os.path.abspath(log_path)
+    signed_path = os.path.abspath(signed_path)
+    pdf_path = os.path.abspath(pdf_path) if pdf_path else pdf_path
 
     # Export artifacts
     default_export = os.path.join(os.getcwd(), "exports")

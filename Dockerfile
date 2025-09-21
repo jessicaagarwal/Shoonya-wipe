@@ -16,14 +16,9 @@ RUN apt-get update && apt-get install -y \
     # Additional tools
     procps \
     lsof \
-    # GUI dependencies
-    xvfb \
-    libgl1-mesa-dri \
-    libglib2.0-0 \
+    # Minimal X libs for reportlab (fonts rendering)
     libxext6 \
     libxrender1 \
-    libgthread-2.0-0 \
-    libxcb1 \
     libx11-6 \
     # Clean up
     && rm -rf /var/lib/apt/lists/*
@@ -39,8 +34,11 @@ COPY . .
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 saferase && \
+    mkdir -p /app/out /app/exports /app/keys /app/templates && \
     chown -R saferase:saferase /app
 USER saferase
 
-# Default command
-CMD ["python", "test_device_scan.py"]
+# Default to web GUI (non-destructive simulation). No device access is granted by default.
+EXPOSE 5000
+ENV PYTHONUNBUFFERED=1 PYTHONPATH=/app
+CMD ["python", "main.py", "web"]

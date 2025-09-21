@@ -1,20 +1,25 @@
 services:
-  saferase-dev:
+  safeerase-web:
     build: .
-    container_name: saferase-pro-dev
-    volumes:
-      # Mount current directory for development
-      - .:/app
-    # Expose port for web GUI
+    container_name: safeerase-pro-web
     ports:
       - "5000:5000"
-    # Keep container running for development
-    tty: true
-    stdin_open: true
-    # Environment variables
     environment:
-      - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    # Override default command to keep container running
-    command: tail -f /dev/null
+      - PYTHONPATH=/app
+      - RUNNING_IN_DOCKER=1
+      - SANDBOX_VDISKS=2
+      - SANDBOX_VDISK_SIZE_GIB=2
+    volumes:
+      - ./out:/app/out
+      - ./exports:/app/exports
+      - ./templates:/app/templates
+      - ./keys:/app/keys
+      - ./virtual_media:/app/virtual_media
+    # Security: do not mount /dev or grant privileged; this keeps disks safe
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/tmp
+    command: ["python", "main.py", "web"]
     working_dir: /app

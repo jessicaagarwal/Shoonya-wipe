@@ -65,6 +65,15 @@ def main():
         show_help()
         return 0
     
+    elif command == "engine":
+        # Minimal one-click engine run (for testing)
+        from core.engine.dispatcher import execute
+        from core.engine.utils import Device
+        dev = Device(name="VDISK0", path=os.environ.get("SANDBOX_DEVICE", "/app/virtual_media/vdisk0.img"), model="Sandbox VDisk", transport="file", media_type="Flash Memory", size="2G")
+        out = execute(dev, operator_name=os.environ.get("OP_NAME", "Operator"), operator_title=os.environ.get("OP_TITLE", "Tester"), always_encrypted=False)
+        print(out)
+        return 0
+    
     else:
         print(f"❌ Unknown command: {command}")
         show_help()
