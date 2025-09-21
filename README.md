@@ -43,30 +43,34 @@ A simple, secure, verifiable, and tamper-proof data wiping solution that builds 
 
 ## 🚀 **Quick Start**
 
-### **Development Environment**
+> **📖 For detailed step-by-step instructions, see [QUICK_START.md](QUICK_START.md)**
+
+### **Docker Environment (Recommended)**
 ```bash
 # 1. Clone and setup
 git clone <repository-url>
 cd safe-erase-pro
+
+# 2. Start the web application
 docker compose up -d
 
-# 2. Run SafeErasePro
-docker compose exec saferase-dev python main.py web
+# 3. Access the web interface
+# Open browser to: http://localhost:5000
 ```
 
 ### **Main Commands**
 ```bash
-# Web GUI (recommended)
-python main.py web
+# Web GUI (recommended) - Access via http://localhost:5000
+docker compose up -d
 
-# CLI interface
-python main.py cli
+# CLI interface (inside container)
+docker compose exec safeerase-pro-web python main.py cli
 
 # Verification tool
-python main.py verify
+docker compose exec safeerase-pro-web python main.py verify
 
-# Create portable package
-python main.py portable
+# One-click wipe engine
+docker compose exec safeerase-pro-web python main.py engine
 ```
 
 ### **Access Web Interface**
@@ -79,29 +83,47 @@ python main.py portable
 ```
 safe-erase-pro/
 ├── 📁 src/
-│   ├── 📁 core/              # Core logic (CLI, NIST engine, verifier)
-│   │   ├── safeerase.py
-│   │   ├── nist_compliance.py
-│   │   └── verify.py
+│   ├── 📁 core/                    # Core logic and NIST compliance
+│   │   ├── safeerase.py           # Main CLI interface
+│   │   ├── nist_compliance.py     # NIST SP 800-88r2 compliance engine
+│   │   ├── sandbox.py             # Safe testing environment
+│   │   ├── verify.py              # Certificate verification
+│   │   └── 📁 engine/             # Modular wipe engine
+│   │       ├── clear.py           # NIST Clear method implementation
+│   │       ├── purge.py           # NIST Purge method implementation
+│   │       ├── certificate.py     # Certificate generation
+│   │       ├── utils.py           # Utility functions
+│   │       └── dispatcher.py      # Engine dispatcher
 │   └── 📁 web/
-│       └── web_gui.py        # Flask app
+│       └── web_gui.py             # Flask web application
 ├── 📁 templates/
-│   └── index.html            # Web GUI template (top-level)
-├── 📄 main.py
-├── 📄 requirements.txt
-├── 📄 NIST_COMPLIANCE.md
-└── 📄 IMPLEMENTATION_SUMMARY.md
+│   └── index.html                 # Web GUI template
+├── 📁 virtual_media/              # Virtual disk images for testing
+│   ├── vdisk0.img
+│   └── vdisk1.img
+├── 📁 out/                        # Generated certificates and logs
+├── 📁 exports/                    # Export directory
+├── 📁 keys/                       # RSA keys for digital signatures
+├── 📄 main.py                     # Application entry point
+├── 📄 requirements.txt            # Python dependencies
+├── 📄 docker-compose.yml          # Docker configuration
+├── 📄 Dockerfile                  # Docker image definition
+├── 📄 NIST_COMPLIANCE.md          # NIST compliance documentation
+└── 📄 IMPLEMENTATION_SUMMARY.md   # Implementation details
 ```
 
 ## 🔧 **Installation**
 
 ### **Docker (Recommended)**
 ```bash
-# Start development environment
+# Start the application
 docker compose up -d
 
-# Access container
-docker compose exec saferase-dev bash
+# Access the web interface
+# Open browser to: http://localhost:5000
+
+# Access container for CLI usage
+docker compose exec safeerase-pro-web bash
 ```
 
 ### **Direct Installation**
@@ -109,8 +131,11 @@ docker compose exec saferase-dev bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Run directly (Windows: use `python`)
+# Run web interface
 python main.py web
+
+# Run CLI interface
+python main.py cli
 ```
 
 ## 📦 **Distribution**
@@ -138,8 +163,32 @@ python verify_simple.py certificate.json
 - **Offline Operation** - No internet required
 - **RSA-PSS-SHA256** - Industry-standard signatures
 - **Tamper-Proof** - Cryptographically secure certificates
-- **NIST Compliant** - SP 800-88 data sanitization
+- **NIST Compliant** - SP 800-88r2 data sanitization
 - **Audit Trail** - Complete wipe documentation
+- **Docker Safety** - Sandboxed execution prevents real drive damage
+- **Virtual Testing** - Safe testing with virtual disk images
+- **Cross-Platform** - Windows, Linux, and Docker support
+
+## 🛡️ **Safety Measures**
+
+### **Docker Containerization**
+- **Sandboxed Environment** - All operations run inside Docker containers
+- **Virtual Media** - Uses virtual disk images for testing (vdisk0.img, vdisk1.img)
+- **Read-Only Filesystem** - Prevents accidental system modifications
+- **No Real Drive Access** - Cannot accidentally wipe real drives
+
+### **NIST SP 800-88r2 Compliance**
+- **Clear Method** - Single-pass overwrite for magnetic media
+- **Purge Method** - SSD secure erase and cryptographic erase
+- **AI Decision Flowchart** - Intelligent method selection based on device type
+- **Verification & Validation** - Comprehensive compliance checking
+- **Digital Certificates** - NIST-compliant PDF and JSON certificates
+
+### **Testing Environment**
+- **Virtual Disks** - 2GB virtual disk images for safe testing
+- **Real Functionality** - Actual wipe operations on virtual media
+- **Certificate Generation** - Full certificate generation and signing
+- **Progress Simulation** - Realistic progress tracking and timing
 
 ## 🎯 **Use Cases**
 
@@ -160,8 +209,12 @@ python verify_simple.py certificate.json
 
 ## 📚 **Documentation**
 
-- NIST Compliance: `NIST_COMPLIANCE.md`
-- Implementation Summary: `IMPLEMENTATION_SUMMARY.md`
+- **📖 Quick Start**: `QUICK_START.md` - Get started in 5 minutes
+- **🔧 API Documentation**: `API_DOCUMENTATION.md` - Complete API reference and usage examples
+- **👨‍💻 Development Guide**: `DEVELOPMENT_GUIDE.md` - Development setup, architecture, and contribution guidelines
+- **📋 Project Overview**: `PROJECT_OVERVIEW.md` - Complete project overview and architecture
+- **🔒 NIST Compliance**: `NIST_COMPLIANCE.md` - NIST SP 800-88r2 compliance details
+- **⚙️ Implementation Summary**: `IMPLEMENTATION_SUMMARY.md` - Technical implementation overview
 
 ## 🤝 **Contributing**
 
