@@ -5,9 +5,9 @@ Production mode dispatcher for real device operations.
 """
 
 import logging
-from ...core.shared.nist_types import DeviceInfo, SanitizationMethod
-from ...core.production.production_mode import production_manager
-from ...core.production.safety_controls import SafetyController
+from core.shared.nist_types import DeviceInfo, SanitizationMethod
+from core.production.production_mode import production_manager
+from core.production.safety_controls import SafetyController
 from .real_clear import RealClearEngine
 from .real_purge import RealPurgeEngine
 

@@ -6,8 +6,8 @@ NIST Purge method implementation for real devices.
 
 import logging
 from datetime import datetime
-from ...core.shared.nist_types import DeviceInfo, SanitizationResult, SanitizationMethod, SanitizationTechnique
-from ...core.production.real_device import RealDeviceWiper
+from core.shared.nist_types import DeviceInfo, SanitizationResult, SanitizationMethod, SanitizationTechnique
+from core.production.real_device import RealDeviceWiper
 
 class RealPurgeEngine:
     """Real device Purge method implementation."""
