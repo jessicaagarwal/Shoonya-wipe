@@ -1,8 +1,8 @@
-# SafeErasePro API Documentation
+# Shoonya Wipe API Documentation
 
 ## Overview
 
-SafeErasePro provides both a web API and CLI interface for secure data wiping with NIST SP 800-88r2 compliance. This document covers the API endpoints, data structures, and usage examples.
+Shoonya Wipe provides both a web API and CLI interface for secure data wiping with NIST SP 800-88r2 compliance. This document covers the API endpoints, data structures, and usage examples.
 
 ## Web API Endpoints
 
@@ -151,7 +151,7 @@ class SanitizationTechnique(Enum):
   "media_type": "Virtual",
   "sanitization_method": "Clear",
   "sanitization_technique": "Single Pass Overwrite",
-  "tool_used": "SafeErasePro v1.0",
+  "tool_used": "Shoonya Wipe v1.0",
   "verification_method": "Web mode verification",
   "operator_name": "Web Operator",
   "operator_title": "User",

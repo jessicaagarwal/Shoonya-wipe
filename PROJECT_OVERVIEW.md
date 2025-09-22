@@ -1,10 +1,10 @@
-# SafeErasePro Project Overview
+# Shoonya Wipe Project Overview
 
 ## 🎯 Project Mission
 
 **Making e-waste recycling safe and trustworthy through NIST-compliant data wiping**
 
-SafeErasePro addresses the critical e-waste crisis in India by providing a simple, secure, and verifiable data wiping solution that builds user trust and promotes safe e-waste disposal.
+Shoonya Wipe addresses the critical e-waste crisis in India by providing a simple, secure, and verifiable data wiping solution that builds user trust and promotes safe e-waste disposal.
 
 ## 📊 Problem Statement
 
@@ -85,7 +85,7 @@ A comprehensive, NIST SP 800-88r2 compliant data wiping system that:
 ## 📁 Project Structure
 
 ```
-safe-erase-pro/
+shoonya-wipe/
 ├── 📁 src/
 │   ├── 📁 core/                    # Core logic and NIST compliance
 │   │   ├── nist_compliance.py     # NIST SP 800-88r2 engine
@@ -217,4 +217,4 @@ safe-erase-pro/
 
 ---
 
-**SafeErasePro** - Making e-waste recycling safe and trustworthy! 🌱
+**Shoonya Wipe** - Making e-waste recycling safe and trustworthy! 🌱

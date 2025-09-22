@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SafeErasePro - Offline Mode Enhancement
+Shoonya Wipe - Offline Mode Enhancement
 
 Features:
 - Portable mode (no installation required)
@@ -19,10 +19,10 @@ from typing import Dict, List, Any
 
 def create_portable_package() -> str:
     """Create a portable package that works without installation."""
-    print("🔧 Creating portable SafeErasePro package...")
+    print("🔧 Creating portable Shoonya Wipe package...")
     
     # Create portable directory
-    portable_dir = Path("SafeErasePro-Portable")
+    portable_dir = Path("Shoonya Wipe-Portable")
     portable_dir.mkdir(exist_ok=True)
     
     # Copy essential files
@@ -47,9 +47,9 @@ def create_portable_package() -> str:
     
     # Create portable launcher
     launcher_content = '''#!/bin/bash
-# SafeErasePro Portable Launcher
+# Shoonya Wipe Portable Launcher
 
-echo "🚀 SafeErasePro Portable Mode"
+echo "🚀 Shoonya Wipe Portable Mode"
 echo "=============================="
 
 # Check if Python is available
@@ -69,7 +69,7 @@ else
 fi
 
 # Launch web GUI
-echo "🌐 Starting SafeErasePro Web GUI..."
+echo "🌐 Starting Shoonya Wipe Web GUI..."
 echo "📱 Open your browser to: http://localhost:5000"
 python3 web_gui.py
 '''
@@ -81,7 +81,7 @@ python3 web_gui.py
     
     # Create Windows launcher
     windows_launcher = '''@echo off
-echo 🚀 SafeErasePro Portable Mode
+echo 🚀 Shoonya Wipe Portable Mode
 echo ==============================
 
 REM Check if Python is available
@@ -103,7 +103,7 @@ if not exist "venv" (
 )
 
 REM Launch web GUI
-echo 🌐 Starting SafeErasePro Web GUI...
+echo 🌐 Starting Shoonya Wipe Web GUI...
 echo 📱 Open your browser to: http://localhost:5000
 python web_gui.py
 pause
@@ -116,10 +116,10 @@ pause
     # Create offline verification tool
     offline_verifier = '''#!/usr/bin/env python3
 """
-SafeErasePro - Offline Certificate Verifier
+Shoonya Wipe - Offline Certificate Verifier
 
 This tool allows third parties to verify wipe certificates
-without needing the original SafeErasePro installation.
+without needing the original Shoonya Wipe installation.
 """
 
 import sys
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     verifier_path.chmod(0o755)
     
     # Create README for portable mode
-    readme_content = '''# SafeErasePro - Portable Mode
+    readme_content = '''# Shoonya Wipe - Portable Mode
 
 ## 🚀 Quick Start
 
@@ -268,13 +268,13 @@ def create_bootable_iso() -> str:
     # This would require more complex setup with:
     # - Live Linux distribution
     # - Pre-installed Python and dependencies
-    # - SafeErasePro pre-loaded
+    # - Shoonya Wipe pre-loaded
     # - Boot menu integration
     
     print("⚠️  Bootable ISO creation requires additional setup")
     print("   - Live Linux distribution (Ubuntu/Debian)")
     print("   - Python 3.8+ pre-installed")
-    print("   - SafeErasePro pre-loaded")
+    print("   - Shoonya Wipe pre-loaded")
     print("   - Boot menu integration")
     
     return "Not implemented yet"
@@ -345,11 +345,11 @@ if __name__ == "__main__":
     simple_verifier_path.chmod(0o755)
     
     # Create README for verifier
-    verifier_readme = '''# SafeErasePro - Offline Verifier
+    verifier_readme = '''# Shoonya Wipe - Offline Verifier
 
 ## 🔍 What This Does
 
-This tool allows anyone to verify SafeErasePro certificates
+This tool allows anyone to verify Shoonya Wipe certificates
 without needing the original installation.
 
 ## 🚀 How to Use
@@ -362,7 +362,7 @@ without needing the original installation.
 
 - ✅ Digital signature is valid
 - ✅ Certificate hasn't been tampered with
-- ✅ Wipe was performed by SafeErasePro
+- ✅ Wipe was performed by Shoonya Wipe
 - ✅ Device and method information
 
 ## 🔒 Security
@@ -386,7 +386,7 @@ For questions, contact the certificate issuer.
 
 def main():
     """Main offline mode setup."""
-    print("🔒 SafeErasePro - Offline Mode Setup")
+    print("🔒 Shoonya Wipe - Offline Mode Setup")
     print("====================================")
     
     # Create portable package

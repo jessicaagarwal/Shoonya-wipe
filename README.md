@@ -1,4 +1,4 @@
-# SafeErasePro (NIST SP 800-88r2 Compliant)
+# Shoonya Wipe (NIST SP 800-88r2 Compliant)
 
 **AI-Assisted, Verified, Cross-Platform Data Wiper with Digital Certificate**
 
@@ -49,7 +49,7 @@ A simple, secure, verifiable, and tamper-proof data wiping solution that builds 
 ```bash
 # 1. Clone and setup
 git clone <repository-url>
-cd safe-erase-pro
+cd shoonya-wipe
 
 # 2. Start the web application
 docker compose up -d
@@ -64,13 +64,13 @@ docker compose up -d
 docker compose up -d
 
 # CLI interface (inside container)
-docker compose exec safeerase-pro-web python main.py cli
+docker compose exec shoonya-wipe-web python main.py cli
 
 # Verification tool
-docker compose exec safeerase-pro-web python main.py verify
+docker compose exec shoonya-wipe-web python main.py verify
 
 # One-click wipe engine
-docker compose exec safeerase-pro-web python main.py engine
+docker compose exec shoonya-wipe-web python main.py engine
 ```
 
 ### **Access Web Interface**
@@ -81,7 +81,7 @@ docker compose exec safeerase-pro-web python main.py engine
 ## 📁 **Project Structure**
 
 ```
-safe-erase-pro/
+shoonya-wipe/
 ├── 📁 src/
 │   ├── 📁 core/                    # Core logic and NIST compliance
 │   │   ├── safeerase.py           # Main CLI interface
@@ -123,7 +123,7 @@ docker compose up -d
 # Open browser to: http://localhost:5000
 
 # Access container for CLI usage
-docker compose exec safeerase-pro-web bash
+docker compose exec shoonya-wipe-web bash
 ```
 
 ### **Direct Installation**
@@ -236,4 +236,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**SafeErasePro** - Making e-waste recycling safe and trustworthy! 🌱
+**Shoonya Wipe** - Making e-waste recycling safe and trustworthy! 🌱

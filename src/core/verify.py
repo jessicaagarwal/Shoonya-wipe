@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SafeErasePro - Signed Log Verifier (MVP)
+Shoonya Wipe - Signed Log Verifier (MVP)
 
 Usage:
   python verify.py --log out/wipelog_signed.json --pub keys/public.pem

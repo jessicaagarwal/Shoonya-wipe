@@ -1,4 +1,4 @@
-# SafeErasePro Development Environment
+# Shoonya Wipe Development Environment
 # Python 3.11 slim base with Linux disk tools
 FROM python:3.11-slim
 

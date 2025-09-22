@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-SafeErasePro - Main Entry Point
+Shoonya Wipe - Main Entry Point
 
-This is the main entry point for SafeErasePro.
+This is the main entry point for Shoonya Wipe.
 It provides access to all the different modes and interfaces.
 """
 
@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 def show_help():
     """Show help information."""
-    print("🔒 SafeErasePro - Secure Data Wiping Tool")
+    print("🔒 Shoonya Wipe - Secure Data Wiping Tool")
     print("==========================================")
     print()
     print("Usage: python main.py [command]")
@@ -48,7 +48,7 @@ def main():
     
     elif command == "web":
         from web.web_gui import app
-        print("🌐 Starting SafeErasePro Web GUI...")
+        print("🌐 Starting Shoonya Wipe Web GUI...")
         print("📱 Open your browser to: http://localhost:5000")
         app.run(host='0.0.0.0', port=5000, debug=False)
         return 0

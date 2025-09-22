@@ -1,4 +1,4 @@
-# SafeErasePro Python Dependencies
+# Shoonya Wipe Python Dependencies
 
 # PDF Generation
 PyPDF2==3.0.1

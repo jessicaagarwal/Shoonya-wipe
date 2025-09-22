@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SafeErasePro - NIST SP 800-88r2 Compliance Module
+Shoonya Wipe - NIST SP 800-88r2 Compliance Module
 
 This module implements the NIST SP 800-88r2 guidelines for media sanitization,
 including Clear, Purge, and Destroy methods with proper verification and documentation.
@@ -386,7 +386,7 @@ class NISTComplianceEngine:
             "media_type": self._determine_media_type(device.transport),
             "sanitization_method": result.method.value,
             "sanitization_technique": result.technique.value,
-            "tool_used": f"SafeErasePro v1.0",
+            "tool_used": f"Shoonya Wipe v1.0",
             "verification_method": "Status check and completion verification",
             "operator_name": operator_name,
             "operator_title": operator_title,

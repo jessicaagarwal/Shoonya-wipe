@@ -1,8 +1,8 @@
-# SafeErasePro Development Guide
+# Shoonya Wipe Development Guide
 
 ## Overview
 
-This guide covers the development setup, architecture, and contribution guidelines for SafeErasePro.
+This guide covers the development setup, architecture, and contribution guidelines for Shoonya Wipe.
 
 ## Architecture
 
@@ -50,7 +50,7 @@ This guide covers the development setup, architecture, and contribution guidelin
 1. **Clone the repository**
 ```bash
 git clone <repository-url>
-cd safe-erase-pro
+cd shoonya-wipe
 ```
 
 2. **Set up Python environment**
@@ -84,11 +84,11 @@ docker compose up -d
 
 2. **Access the application**
 - Web interface: http://localhost:5000
-- Container shell: `docker compose exec safeerase-pro-web bash`
+- Container shell: `docker compose exec shoonya-wipe-web bash`
 
 3. **View logs**
 ```bash
-docker logs safeerase-pro-web -f
+docker logs shoonya-wipe-web -f
 ```
 
 ## Code Structure

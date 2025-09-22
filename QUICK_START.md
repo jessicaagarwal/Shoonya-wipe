@@ -1,4 +1,4 @@
-# SafeErasePro Quick Start Guide
+# Shoonya Wipe Quick Start Guide
 
 ## 🚀 Get Started in 5 Minutes
 
@@ -6,7 +6,7 @@
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd safe-erase-pro
+cd shoonya-wipe
 
 # Start with Docker (recommended)
 docker compose up -d
@@ -14,7 +14,7 @@ docker compose up -d
 
 ### Step 2: Access the Web Interface
 - Open your browser to: **http://localhost:5000**
-- You'll see the SafeErasePro web interface
+- You'll see the Shoonya Wipe web interface
 
 ### Step 3: Run a Test Wipe
 1. **Select Device** - Choose VDISK0 (virtual test disk)
@@ -89,7 +89,7 @@ docker compose restart
 1. Try different device types (VDISK0, VDISK1)
 2. Test the verification process
 3. Download and examine certificates
-4. Try the CLI interface: `docker compose exec safeerase-pro-web python main.py cli`
+4. Try the CLI interface: `docker compose exec shoonya-wipe-web python main.py cli`
 
 ### For Development
 1. Read the development guide: `DEVELOPMENT_GUIDE.md`
@@ -106,9 +106,9 @@ docker compose restart
 ## 🎉 Success!
 
 You've successfully:
-- ✅ Set up SafeErasePro
+- ✅ Set up Shoonya Wipe
 - ✅ Run a test wipe process
 - ✅ Generated NIST-compliant certificates
 - ✅ Verified the system works
 
-**SafeErasePro is now ready for use!** 🌱
+**Shoonya Wipe is now ready for use!** 🌱
