@@ -25,14 +25,14 @@ except ImportError:
 # Import NIST compliance engine
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from core.nist_compliance import (
+from core.safe.nist_compliance import (
     NISTComplianceEngine, DeviceInfo, SanitizationMethod, 
     SanitizationTechnique, DataSensitivity
 )
-from core.safeerase import (
+from core.safe.safeerase import (
     init_log, write_log, sign_json, render_nist_pdf_certificate
 )
-from core.sandbox import list_sandbox_devices, overwrite_file, cryptographic_erase_file
+from core.safe.sandbox import list_sandbox_devices, overwrite_file, cryptographic_erase_file
 
 # Point Flask to the top-level templates directory
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -485,7 +485,7 @@ def api_verify():
     try:
         # Call verifier directly to avoid subprocess and path issues
         sys.path.insert(0, str(PROJECT_ROOT / "src"))
-        from core.verify import verify as verify_log  # type: ignore
+        from core.safe.verify import verify as verify_log  # type: ignore
         is_valid = verify_log(json_path, pub_path)
         if is_valid:
             return jsonify({"status": "valid", "message": "Signature verified"})

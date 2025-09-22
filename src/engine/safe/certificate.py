@@ -1,7 +1,11 @@
 from typing import Dict, Any
 from datetime import datetime
-from ..nist_compliance import NISTComplianceEngine, DeviceInfo, SanitizationResult, SanitizationMethod, SanitizationTechnique
-from ..safeerase import write_log, sign_json, render_nist_pdf_certificate
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+
+from src.core.safe.nist_compliance import NISTComplianceEngine, DeviceInfo, SanitizationResult, SanitizationMethod, SanitizationTechnique
+from src.core.safe.safeerase import write_log, sign_json, render_nist_pdf_certificate
 
 
 def build_and_emit_cert(device: Dict[str, Any], result: Dict[str, Any], operator_name: str, operator_title: str) -> Dict[str, str]:
