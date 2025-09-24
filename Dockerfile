@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
     libxext6 \
     libxrender1 \
     libx11-6 \
+    # Additional dependencies for Python packages
+    libffi-dev \
+    libssl-dev \
     # Clean up
     && rm -rf /var/lib/apt/lists/*
 
