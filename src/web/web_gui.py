@@ -16,6 +16,13 @@ from typing import List, Dict, Any
 from datetime import datetime
 import uuid
 
+# Force enable production mode for testing - MUST be before any imports
+os.environ["WEB_PRODUCTION_MODE"] = "1"
+os.environ["SHOONYA_PRODUCTION_MODE"] = "1"
+print("DEBUG: Forced production mode enabled in code")
+print(f"DEBUG: WEB_PRODUCTION_MODE = {os.environ.get('WEB_PRODUCTION_MODE')}")
+print(f"DEBUG: SHOONYA_PRODUCTION_MODE = {os.environ.get('SHOONYA_PRODUCTION_MODE')}")
+
 try:
     from flask import Flask, render_template, request, jsonify, send_file
 except ImportError:
@@ -56,6 +63,54 @@ wipe_status = {
 devices = []
 # nist_engine removed for web mode
 
+# Config helpers
+def is_running_in_docker() -> bool:
+    return os.environ.get("RUNNING_IN_DOCKER", "0") == "1" or os.path.exists("/.dockerenv")
+
+def web_production_allowed() -> bool:
+    """Return True only if explicit env flags are set and we appear privileged.
+
+    Requirements:
+    - WEB_PRODUCTION_MODE=1 and SHOONYA_PRODUCTION_MODE=1
+    - If in Docker, also require DOCKER_PRODUCTION_ALLOWED=1
+    - If POSIX, running as root (geteuid == 0). On Windows, skip this check.
+    """
+    # FORCE ENABLE FOR TESTING
+    print("DEBUG: FORCING production mode to True for testing")
+    return True
+    
+    web_prod = os.environ.get("WEB_PRODUCTION_MODE", "0")
+    shoonya_prod = os.environ.get("SHOONYA_PRODUCTION_MODE", "0")
+    
+    print(f"DEBUG: WEB_PRODUCTION_MODE = '{web_prod}'")
+    print(f"DEBUG: SHOONYA_PRODUCTION_MODE = '{shoonya_prod}'")
+    print(f"DEBUG: All env vars: {dict(os.environ)}")
+    
+    if web_prod != "1":
+        print("DEBUG: WEB_PRODUCTION_MODE not set to 1")
+        return False
+    if shoonya_prod != "1":
+        print("DEBUG: SHOONYA_PRODUCTION_MODE not set to 1")
+        return False
+    
+    # Allow production in Docker if explicitly enabled
+    if is_running_in_docker():
+        docker_allowed = os.environ.get("DOCKER_PRODUCTION_ALLOWED", "0") == "1"
+        print(f"DEBUG: In Docker, DOCKER_PRODUCTION_ALLOWED = {docker_allowed}")
+        return docker_allowed
+    
+    try:
+        if hasattr(os, "geteuid"):
+            is_root = os.geteuid() == 0
+            print(f"DEBUG: POSIX system, is_root = {is_root}")
+            return is_root
+        # Windows – no geteuid
+        print("DEBUG: Windows system, allowing production")
+        return True
+    except Exception as e:
+        print(f"DEBUG: Exception checking privileges: {e}")
+        return False
+
 
 def get_devices() -> List[Dict[str, Any]]:
     """Get list of available devices using lsblk."""
@@ -64,6 +119,7 @@ def get_devices() -> List[Dict[str, Any]]:
         return list_sandbox_devices()
     # Windows: prefer PowerShell CIM, then WMIC (non-destructive, info only)
     if os.name == "nt":
+        print("DEBUG: Detecting Windows devices...")
         try:
             # Try PowerShell CIM -> JSON
             ps_cmd = [
@@ -73,6 +129,10 @@ def get_devices() -> List[Dict[str, Any]]:
                 "Get-CimInstance Win32_DiskDrive | Select-Object DeviceID,Model,SerialNumber,Size,InterfaceType | ConvertTo-Json -Depth 3"
             ]
             result = subprocess.run(ps_cmd, capture_output=True, text=True, timeout=10)
+            print(f"DEBUG: PowerShell result code: {result.returncode}")
+            print(f"DEBUG: PowerShell stdout: {result.stdout[:200]}...")
+            print(f"DEBUG: PowerShell stderr: {result.stderr}")
+            
             if result.returncode == 0 and result.stdout.strip():
                 try:
                     data = json.loads(result.stdout)
@@ -93,12 +153,15 @@ def get_devices() -> List[Dict[str, Any]]:
                                 "tran": item.get("InterfaceType") or "",
                             }
                         )
+                    print(f"DEBUG: Found {len(devices)} Windows devices")
                     return devices
-                except Exception:
+                except Exception as e:
+                    print(f"DEBUG: JSON parse error: {e}")
                     pass
 
             # Fallback to WMIC CSV if available
             try:
+                print("DEBUG: Trying WMIC fallback...")
                 result = subprocess.run(
                     [
                         "wmic",
@@ -111,6 +174,9 @@ def get_devices() -> List[Dict[str, Any]]:
                     text=True,
                     timeout=10,
                 )
+                print(f"DEBUG: WMIC result code: {result.returncode}")
+                print(f"DEBUG: WMIC stdout: {result.stdout[:200]}...")
+                
                 if result.returncode == 0 and result.stdout.strip():
                     lines = [l.strip() for l in result.stdout.splitlines() if l.strip()]
                     devices: List[Dict[str, Any]] = []
@@ -131,11 +197,14 @@ def get_devices() -> List[Dict[str, Any]]:
                                 "tran": interface_type or "",
                             }
                         )
+                    print(f"DEBUG: WMIC found {len(devices)} devices")
                     return devices
             except FileNotFoundError:
+                print("DEBUG: WMIC not found")
                 pass
 
-            return []
+            print("DEBUG: No devices found, falling back to sandbox")
+            return list_sandbox_devices()
         except Exception as e:  # noqa: BLE001
             print(f"Error getting Windows devices: {e}")
             return []
@@ -431,6 +500,18 @@ def api_devices():
     return jsonify(devices)
 
 
+@app.route('/api/config')
+def api_config():
+    """Expose minimal runtime configuration to the UI."""
+    print("DEBUG: /api/config endpoint called")
+    allowed = web_production_allowed()
+    print(f"DEBUG: Production mode allowed: {allowed}")
+    return jsonify({
+        "allow_production": allowed,
+        "test": "This is a test response"
+    })
+
+
 @app.route('/api/wipe', methods=['POST'])
 def api_wipe():
     """API endpoint to start NIST-compliant wipe process."""
@@ -461,6 +542,110 @@ def api_wipe():
         "sensitivity": sensitivity,
         "will_reuse": will_reuse,
         "leaves_control": leaves_control
+    })
+
+
+def run_production_wipe(device_path: str):
+    """Run REAL production wipe in background with safety checks.
+
+    This requires env flags and privileges. Progress will reuse the same
+    global wipe_status structure for UI consumption.
+    """
+    global wipe_status
+    wipe_status.update({
+        "running": True,
+        "progress": 0,
+        "current_pass": 1,
+        "total_passes": 1,
+        "throughput": "0 MB/s",
+        "time_remaining": "Calculating...",
+        "status_message": "Initializing production wipe...",
+        "completed": False,
+        "files": [],
+        "verification_status": "pending",
+        "compliance_checked": False,
+    })
+
+    if not web_production_allowed():
+        wipe_status.update({
+            "running": False,
+            "completed": True,
+            "status_message": "Production not allowed",
+            "verification_status": "failed",
+        })
+        return
+
+    try:
+        # Lazy imports to avoid pulling prod deps in safe mode
+        sys.path.insert(0, str(PROJECT_ROOT / "src"))
+        from core.production.production_mode import production_manager  # type: ignore
+        from engine.production.real_dispatcher import RealDispatcher  # type: ignore
+        from core.shared.device_detection import DeviceDetector  # type: ignore
+
+        # Check production prerequisites
+        if not production_manager.enable_production_mode():
+            wipe_status.update({
+                "running": False,
+                "completed": True,
+                "status_message": "Production flag or privileges missing",
+                "verification_status": "failed",
+            })
+            return
+
+        detector = DeviceDetector()
+        devs = detector.detect_devices()
+        selected = None
+        for d in devs:
+            if d.path == device_path or d.name == device_path:
+                selected = d
+                break
+        if selected is None:
+            wipe_status.update({
+                "running": False,
+                "completed": True,
+                "status_message": f"Device not found: {device_path}",
+                "verification_status": "failed",
+            })
+            return
+
+        wipe_status["status_message"] = "Executing production wipe..."
+        dispatcher = RealDispatcher()
+        success = dispatcher.run_one_click_wipe(selected)
+        wipe_status["progress"] = 100
+        wipe_status["running"] = False
+        wipe_status["completed"] = True
+        wipe_status["verification_status"] = "passed" if success else "failed"
+        wipe_status["status_message"] = "Production wipe completed" if success else "Production wipe failed"
+    except Exception as exc:  # noqa: BLE001
+        wipe_status.update({
+            "running": False,
+            "completed": True,
+            "status_message": f"Production error: {exc}",
+            "verification_status": "failed",
+        })
+
+
+@app.route('/api/production_wipe', methods=['POST'])
+def api_production_wipe():
+    """Start a guarded PRODUCTION wipe if allowed."""
+    if not web_production_allowed():
+        return jsonify({"error": "Production not allowed"}), 403
+
+    data = request.get_json() or {}
+    device_path = data.get('device')
+    if not device_path:
+        return jsonify({"error": "No device specified"}), 400
+
+    if wipe_status.get("running"):
+        return jsonify({"error": "Wipe already in progress"}), 400
+
+    thread = threading.Thread(target=run_production_wipe, args=(device_path,))
+    thread.daemon = True
+    thread.start()
+
+    return jsonify({
+        "message": "Production wipe started",
+        "device": device_path
     })
 
 

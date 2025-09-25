@@ -804,10 +804,16 @@
         <div class="main-content">
             <div class="top-bar">
                 <h1 class="page-title" id="pageTitle">Step 1 - Device Selection</h1>
-                <button class="refresh-btn" onclick="refreshDevices()">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh Devices
-                </button>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div id="prodToggleWrap" class="hidden" style="display:flex;align-items:center;gap:8px;background:#2a2a2a;border:1px solid #3a3a3a;padding:8px 12px;border-radius:8px;">
+                        <input type="checkbox" id="prodToggle" />
+                        <label for="prodToggle" style="color:#ff8800;font-weight:600;cursor:pointer;">Production Mode</label>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshDevices()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Devices
+                    </button>
+                </div>
             </div>
 
             <div class="content-area">
@@ -1138,8 +1144,15 @@
         function startWipe() {
             if (!selectedDevice) return;
             setStep(4);
+            const isProd = document.getElementById('prodToggle')?.checked;
+            const endpoint = isProd ? '/api/production_wipe' : '/api/wipe';
             
-            fetch('/api/wipe', {
+            if (isProd) {
+                const sure = confirm('⚠️ PRODUCTION MODE: This will erase REAL data on the selected device. Continue?');
+                if (!sure) { setStep(3); return; }
+            }
+
+            fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1249,6 +1262,13 @@
             const p = document.getElementById('expectedPathLabel').textContent;
             navigator.clipboard?.writeText(p);
         }
+
+        // Load server config to show production toggle if allowed
+        fetch('/api/config').then(r=>r.json()).then(cfg=>{
+            if (cfg.allow_production) {
+                document.getElementById('prodToggleWrap').classList.remove('hidden');
+            }
+        }).catch(()=>{});
 
         // Initialize
         refreshDevices();
