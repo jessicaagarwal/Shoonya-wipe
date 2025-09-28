@@ -5,6 +5,7 @@ Production mode dispatcher for real device operations.
 """
 
 import logging
+from typing import Optional, Callable
 from core.shared.nist_types import DeviceInfo, SanitizationMethod
 from core.production.production_mode import production_manager
 from core.production.safety_controls import SafetyController
@@ -20,7 +21,7 @@ class RealDispatcher:
         self.clear_engine = RealClearEngine()
         self.purge_engine = RealPurgeEngine()
     
-    def execute_wipe(self, device: DeviceInfo, method: SanitizationMethod) -> bool:
+    def execute_wipe(self, device: DeviceInfo, method: SanitizationMethod, progress_callback: Optional[Callable[[int, int], None]] = None) -> bool:
         """Execute wipe operation on real device."""
         try:
             # Validate production environment
@@ -46,9 +47,9 @@ class RealDispatcher:
             
             # Execute the appropriate method
             if method == SanitizationMethod.CLEAR:
-                result = self.clear_engine.execute_clear(device)
+                result = self.clear_engine.execute_clear(device, progress_callback)
             elif method == SanitizationMethod.PURGE:
-                result = self.purge_engine.execute_purge(device)
+                result = self.purge_engine.execute_purge(device, progress_callback)
             else:
                 self.logger.error(f"Unsupported method: {method}")
                 return False
@@ -68,7 +69,7 @@ class RealDispatcher:
             self.safety_controller.log_safety_event("WIPE_ERROR", device.path)
             return False
     
-    def run_one_click_wipe(self, device: DeviceInfo) -> bool:
+    def run_one_click_wipe(self, device: DeviceInfo, progress_callback: Optional[Callable[[int, int], None]] = None) -> bool:
         """Run one-click wipe with automatic method selection."""
         try:
             # Determine best method for device
@@ -77,7 +78,7 @@ class RealDispatcher:
             self.logger.info(f"One-click wipe: {method.value} on {device.path}")
             
             # Execute wipe
-            return self.execute_wipe(device, method)
+            return self.execute_wipe(device, method, progress_callback)
             
         except Exception as e:
             self.logger.error(f"One-click wipe failed: {e}")

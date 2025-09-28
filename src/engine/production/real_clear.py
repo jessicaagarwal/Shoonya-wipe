@@ -6,6 +6,7 @@ NIST Clear method implementation for real devices.
 
 import logging
 from datetime import datetime
+from typing import Optional, Callable
 from core.shared.nist_types import DeviceInfo, SanitizationResult, SanitizationMethod, SanitizationTechnique
 from core.production.real_device import RealDeviceWiper
 
@@ -16,13 +17,13 @@ class RealClearEngine:
         self.logger = logging.getLogger(__name__)
         self.wiper = RealDeviceWiper()
     
-    def execute_clear(self, device: DeviceInfo) -> SanitizationResult:
+    def execute_clear(self, device: DeviceInfo, progress_callback: Optional[Callable[[int, int], None]] = None) -> SanitizationResult:
         """Execute NIST Clear method on real device."""
         try:
             self.logger.info(f"Starting Clear method on {device.path}")
             
             # Execute real device wipe
-            success, message = self.wiper.execute_clear(device.path)
+            success, message = self.wiper.execute_clear(device.path, progress_callback)
             
             if success:
                 # Verify the wipe
