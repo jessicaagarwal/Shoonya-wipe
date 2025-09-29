@@ -1,4 +1,4 @@
-# Shoonya Wipe (NIST SP 800-88r2 Compliant)
+# Shoonya WIPE (NIST SP 800-88r2 Compliant)
 
 **AI-Assisted, Verified, Cross-Platform Data Wiper with Digital Certificate**
 

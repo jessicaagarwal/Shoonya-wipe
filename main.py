@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Shoonya Wipe - Main Entry Point
+Shoonya WIPE - Main Entry Point
 
-This is the main entry point for Shoonya Wipe.
+This is the main entry point for Shoonya WIPE.
 It provides access to all the different modes and interfaces.
 """
 
@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 def show_help():
     """Show help information."""
-    print("🔒 Shoonya Wipe - Secure Data Wiping Tool")
+    print("🔒 Shoonya WIPE - Secure Data Wiping Tool")
     print("==========================================")
     print()
     print("Usage: python main.py [command]")

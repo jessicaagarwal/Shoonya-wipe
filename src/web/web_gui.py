@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Shoonya Wipe - NIST SP 800-88r2 Compliant Web GUI
+Shoonya WIPE - NIST SP 800-88r2 Compliant Web GUI
 
 Web interface for NIST-compliant data sanitization with AI-guided decision process.
 Runs on localhost:5000 - no display needed.
@@ -632,7 +632,7 @@ def run_wipe_process(
                     "title": "User"
                 },
                 "tool": {
-                    "name": "Shoonya Wipe",
+                    "name": "Shoonya WIPE",
                     "version": "1.0"
                 }
             }
@@ -655,7 +655,7 @@ def run_wipe_process(
                 "media_type": device_info.media_type or "Virtual",
                 "sanitization_method": method.value,
                 "sanitization_technique": technique.value,
-                "tool_used": "Shoonya Wipe v1.0",
+                "tool_used": "Shoonya WIPE v1.0",
                 "verification_method": "Web mode verification",
                 "operator_name": "Web Operator",
                 "operator_title": "User", 
@@ -1135,7 +1135,7 @@ if __name__ == '__main__':
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shoonya Wipe - NIST SP 800-88r2 Compliant</title>
+    <title>Shoonya WIPE - NIST SP 800-88r2 Compliant</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -1799,7 +1799,7 @@ if __name__ == '__main__':
         <div class="header">
             <div class="logo">
                 <i class="fas fa-shield-alt"></i>
-                Shoonya Wipe
+                Shoonya WIPE
             </div>
             <p class="subtitle">Secure Data Wiping Tool - One-Click Interface</p>
         </div>
@@ -2108,8 +2108,8 @@ if __name__ == '__main__':
         with open(index_path, "w") as f:
             f.write(html_content)
     
-    print("🌐 Shoonya Wipe Web GUI starting...")
-    print("📱 Open your browser to: http://localhost:5000")
-    print("🔒 One-click interface ready!")
+    print("Shoonya WIPE Web GUI starting...")
+    print("Open your browser to: http://localhost:5000")
+    print("One-click interface ready!")
     
     app.run(host='0.0.0.0', port=5000, debug=False)
