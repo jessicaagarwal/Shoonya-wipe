@@ -837,13 +837,29 @@
                                 Applies logical techniques to sanitize all user-addressable data. 
                                 Data is unrecoverable. Suitable for confidential data.
                             </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px 0;">
+                                <div class="method-badge" id="aiModeBadge">AI help runs on this computer (no internet)</div>
+                                <div class="method-badge" id="aiConfidence">About 0% sure</div>
+                                <div class="method-badge" id="aiTechnique">Erase by writing over the drive once (Clear)</div>
+                            </div>
+                            <div id="aiWarnings" style="color:#ffcc66;font-weight:600;font-size:0.85rem;margin-bottom:8px;"></div>
+                            <div id="aiWhy" style="background: rgba(0,0,0,0.08); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                                <div style="font-weight:700;margin-bottom:6px;color:#000">Why this was suggested</div>
+                                <ul id="aiWhyList" style="margin-left:18px;color:#000"></ul>
+                            </div>
                             <div class="method-diagram">
                                 <i class="fas fa-server" style="font-size: 2rem; margin-bottom: 10px;"></i>
                                 <div class="method-flow">Device Type → AI Analysis Method → NIST 800-88r2</div>
                             </div>
-                            <div style="margin-top:8px;color:#000;font-weight:700">Selected: <span id="selectedMethod">PURGE</span></div>
+                            <div style="margin-top:8px;color:#000;font-weight:700">Selected: <span id="selectedMethod">Purge</span></div>
                         </div>
                         <div class="method-secondary">
+                            <div class="method-card" id="cardPurge">
+                                <div class="method-title" style="color: #00d4ff;">Purge</div>
+                                <div class="method-description" style="color: #888;">
+                                    SSD/NVMe, use controller-assisted secure erase per NIST 800-88r2.
+                                </div>
+                            </div>
                             <div class="method-card" id="cardClear">
                                 <div class="method-title" style="color: #00ff88;">Clear</div>
                                 <div class="method-description" style="color: #888;">
@@ -1100,20 +1116,67 @@
             if (currentStep === 1) {
                 // Compute recommendation before showing step 2
                 if (selectedDevice) {
-                    const tran = (selectedDevice.tran || '').toLowerCase();
-                    let method = 'Clear';
-                    let desc = 'Single-pass overwrite for magnetic media';
-                    if (tran.includes('nvme') || tran.includes('sata') || tran.includes('ata')) {
-                        method = 'PURGE';
-                        desc = 'SSD secure erase per NIST SP 800-88r2';
-                    }
-                    document.getElementById('primaryMethodTitle').textContent = method;
-                    document.getElementById('primaryMethodDesc').textContent = desc;
-                    chosenMethod = method;
-                    document.getElementById('selectedMethod').textContent = chosenMethod;
-                    // clear any manual selections
-                    document.getElementById('cardClear').classList.remove('selected');
-                    document.getElementById('cardDestroy').classList.remove('selected');
+                    // Query local AI advisor for recommendation
+                    fetch('/api/ai/recommendation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            device: selectedDevice.path || `/dev/${selectedDevice.name}`,
+                            sensitivity: 'moderate',
+                            will_reuse: true,
+                            leaves_control: false
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(rec => {
+                        const method = rec?.method || 'Clear';
+                        const desc = rec?.rationale || 'NIST 800-88r2 aligned recommendation';
+                        chosenMethod = method;
+                        document.getElementById('primaryMethodTitle').textContent = method;
+                        document.getElementById('primaryMethodDesc').textContent = desc;
+                        document.getElementById('selectedMethod').textContent = chosenMethod;
+                        // AI meta badges
+                        const mode = rec?.advisor_mode || 'local';
+                        const conf = typeof rec?.confidence === 'number' ? Math.round(rec.confidence * 100) : 0;
+                        const tech = rec?.technique || (method === 'Purge' ? 'SSD Secure Erase' : (method === 'Destroy' ? 'Physical Destruction' : 'Single Pass Overwrite'));
+                        document.getElementById('aiConfidence').textContent = `About ${conf}% sure`;
+                        // Human-friendly technique phrasing
+                        const friendlyTech = (m => {
+                            if (m === 'Purge') return 'Use the drive\'s secure erase for SSDs (Purge)';
+                            if (m === 'Destroy') return 'Physically destroy the drive (Destroy)';
+                            return 'Erase by writing over the drive once (Clear)';
+                        })(method);
+                        document.getElementById('aiTechnique').textContent = friendlyTech;
+                        const warns = Array.isArray(rec?.warnings) ? rec.warnings : [];
+                        document.getElementById('aiWarnings').textContent = warns.length ? `⚠ ${warns.join(' • ')}` : '';
+                        // Why this was suggested — split rationale into bullets at ';' or '.'
+                        const reasons = String(desc).split(/;|\./).map(s => s.trim()).filter(Boolean).slice(0, 4);
+                        const whyList = document.getElementById('aiWhyList');
+                        whyList.innerHTML = '';
+                        reasons.forEach(r => {
+                            const li = document.createElement('li');
+                            li.textContent = r;
+                            whyList.appendChild(li);
+                        });
+                        // clear any manual selections
+                        document.getElementById('cardPurge').classList.remove('selected');
+                        document.getElementById('cardClear').classList.remove('selected');
+                        document.getElementById('cardDestroy').classList.remove('selected');
+                    })
+                    .catch(() => {
+                        // Fallback to simple heuristic
+                        const tran = (selectedDevice.tran || '').toLowerCase();
+                        let method = 'Clear';
+                        let desc = 'Single-pass overwrite for magnetic media';
+                        if (tran.includes('nvme') || tran.includes('sata') || tran.includes('ata')) {
+                            method = 'Purge';
+                            desc = 'SSD secure erase per NIST SP 800-88r2';
+                        }
+                        chosenMethod = method;
+                        document.getElementById('primaryMethodTitle').textContent = method;
+                        document.getElementById('primaryMethodDesc').textContent = desc;
+                        document.getElementById('selectedMethod').textContent = chosenMethod;
+                    });
                 }
             }
             if (currentStep < 4) {
@@ -1159,7 +1222,8 @@
                     device: selectedDevice.path || `/dev/${selectedDevice.name}`,
                     sensitivity: 'moderate',
                     will_reuse: true,
-                    leaves_control: false
+                    leaves_control: false,
+                    chosen_method: chosenMethod
                 })
             })
             .then(() => {
@@ -1238,15 +1302,23 @@
 
         // Method selection handlers
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#cardClear')) {
+            if (e.target.closest('#cardPurge')) {
+                chosenMethod = 'PURGE';
+                document.getElementById('selectedMethod').textContent = chosenMethod;
+                document.getElementById('cardPurge').classList.add('selected');
+                document.getElementById('cardClear').classList.remove('selected');
+                document.getElementById('cardDestroy').classList.remove('selected');
+            } else if (e.target.closest('#cardClear')) {
                 chosenMethod = 'Clear';
                 document.getElementById('selectedMethod').textContent = chosenMethod;
                 document.getElementById('cardClear').classList.add('selected');
+                document.getElementById('cardPurge').classList.remove('selected');
                 document.getElementById('cardDestroy').classList.remove('selected');
             } else if (e.target.closest('#cardDestroy')) {
                 chosenMethod = 'Destroy';
                 document.getElementById('selectedMethod').textContent = chosenMethod;
                 document.getElementById('cardDestroy').classList.add('selected');
+                document.getElementById('cardPurge').classList.remove('selected');
                 document.getElementById('cardClear').classList.remove('selected');
             }
         });

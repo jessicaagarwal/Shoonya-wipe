@@ -335,7 +335,13 @@ def convert_to_device_info(device_dict: dict) -> DeviceInfo:
     )
 
 
-def run_wipe_process(device_path: str, sensitivity: str = "moderate", will_reuse: bool = True, leaves_control: bool = False):
+def run_wipe_process(
+    device_path: str,
+    sensitivity: str = "moderate",
+    will_reuse: bool = True,
+    leaves_control: bool = False,
+    chosen_method: str | None = None,
+):
     """Run the NIST-compliant wipe process in background."""
     global wipe_status, devices, nist_engine
     
@@ -416,13 +422,29 @@ def run_wipe_process(device_path: str, sensitivity: str = "moderate", will_reuse
         
         # device_info is already created above, no need to recreate
         
-        # For web mode, use automatic decision based on device type
-        if device_info.transport.lower() in ["nvme", "sata", "ata"]:
+        # Determine method/technique
+        # 1) If user provided an override (chosen_method), honor it
+        method = None
+        technique = None
+        cm = (chosen_method or "").strip().lower()
+        if cm in ("purge", "purging"):
             method = SanitizationMethod.PURGE
             technique = SanitizationTechnique.SSD_SECURE_ERASE
-        else:
+        elif cm in ("clear",):
             method = SanitizationMethod.CLEAR
             technique = SanitizationTechnique.SINGLE_PASS_OVERWRITE
+        elif cm in ("destroy", "destruct", "physical"): 
+            method = SanitizationMethod.DESTROY
+            technique = SanitizationTechnique.PHYSICAL_DESTRUCTION
+        
+        # 2) Otherwise, use automatic decision based on device type
+        if method is None or technique is None:
+            if device_info.transport.lower() in ["nvme", "sata", "ata"]:
+                method = SanitizationMethod.PURGE
+                technique = SanitizationTechnique.SSD_SECURE_ERASE
+            else:
+                method = SanitizationMethod.CLEAR
+                technique = SanitizationTechnique.SINGLE_PASS_OVERWRITE
         
         # Real wipe with live ETA (Linux only, guarded)
         if os.name != "nt" and os.environ.get("ENABLE_REAL_WIPE", "0") == "1" and str(device_info.path).startswith("/dev/"):
@@ -529,49 +551,53 @@ def run_wipe_process(device_path: str, sensitivity: str = "moderate", will_reuse
             wipe_status["estimated_duration"] = estimated_duration
             wipe_status["time_remaining"] = format_time_remaining(estimated_duration)
         
-        # Scale the simulation time to match the estimated duration
-        total_simulation_time = wipe_status["estimated_duration"]  # Use full estimated duration
-        progress_steps = [
-            (25, "Starting sanitization...", total_simulation_time * 0.2),
-            (50, "Processing data...", total_simulation_time * 0.4),
-            (75, "Verifying sanitization...", total_simulation_time * 0.2),
-            (100, "Sanitization complete!", total_simulation_time * 0.2)
-        ]
-        
-        for progress, message, duration in progress_steps:
-            wipe_status["progress"] = progress
-            wipe_status["status_message"] = message
-            
-            # Update elapsed time and remaining time
-            current_time = time.time()
-            elapsed = current_time - wipe_status["start_time"]
-            wipe_status["elapsed_time"] = int(elapsed)
-            
-            if wipe_status["estimated_duration"]:
-                # Calculate remaining time based on progress, not just elapsed time
-                # This makes the countdown more realistic during simulation
-                total_estimated = wipe_status["estimated_duration"]
-                progress_ratio = progress / 100.0
-                estimated_elapsed = total_estimated * progress_ratio
-                remaining = max(0, total_estimated - int(estimated_elapsed))
-                wipe_status["time_remaining"] = format_time_remaining(remaining)
-                print(f"DEBUG: Progress {progress}%, Elapsed: {int(elapsed)}s, Estimated Elapsed: {int(estimated_elapsed)}s, Remaining: {remaining}s, Time Remaining: {wipe_status['time_remaining']}")
+        # Scale the simulation time for local demo runs (avoid multi-hour sleeps)
+        # SIM_TOTAL_SECONDS env can override (default 90s). This also drives the countdown.
+        total_simulation_time = int(os.environ.get("SIM_TOTAL_SECONDS", "90"))
+        # Fine-grained progress: update every second to avoid appearing stuck at 25%
+        step_messages = {
+            0: "Starting sanitization...",
+            25: "Processing data...",
+            75: "Verifying sanitization...",
+            100: "Sanitization complete!",
+        }
+
+        start = wipe_status["start_time"]
+        last_pct_reported = -1
+        while True:
+            now = time.time()
+            elapsed = max(0, int(now - start))
+            wipe_status["elapsed_time"] = elapsed
+
+            # Progress based on elapsed/total
+            pct = min(100, int((elapsed / max(1, total_simulation_time)) * 100))
+            wipe_status["progress"] = pct
+
+            # Status message at milestones
+            if pct >= 100:
+                wipe_status["status_message"] = step_messages[100]
+            elif pct >= 75:
+                wipe_status["status_message"] = step_messages[75]
+            elif pct >= 25:
+                wipe_status["status_message"] = step_messages[25]
             else:
-                # Fallback: use a simple countdown
-                remaining = max(0, 70 - int(elapsed))
-                wipe_status["time_remaining"] = format_time_remaining(remaining)
-                print(f"DEBUG: Using fallback countdown, Progress {progress}%, Elapsed: {int(elapsed)}s, Remaining: {remaining}s")
-            
-            # Calculate throughput based on progress
-            if progress > 0 and elapsed > 0:
-                # Simulate realistic throughput based on method
-                if method == SanitizationMethod.PURGE:
-                    throughput = f"{200 + (progress * 2)} MB/s"
-                else:
-                    throughput = f"{50 + (progress * 1)} MB/s"
-                wipe_status["throughput"] = throughput
-            
-            time.sleep(duration)
+                wipe_status["status_message"] = step_messages[0]
+
+            # Remaining time from simulated total
+            remaining = max(0, total_simulation_time - elapsed)
+            wipe_status["time_remaining"] = format_time_remaining(remaining)
+
+            # Throughput heuristic grows with progress
+            base = 200 if method == SanitizationMethod.PURGE else 50
+            wipe_status["throughput"] = f"{base + max(0, pct)} MB/s"
+
+            if pct != last_pct_reported and pct % 5 == 0:
+                print(f"DEBUG: Progress {pct}%, Elapsed: {elapsed}s, Remaining: {remaining}s, Time Remaining: {wipe_status['time_remaining']}")
+                last_pct_reported = pct
+
+            if pct >= 100:
+                break
+            time.sleep(1)
         
         wipe_status["running"] = False
         wipe_status["time_remaining"] = "Complete!"
@@ -742,6 +768,110 @@ def api_devices():
     return jsonify(devices)
 
 
+@app.route('/api/ai/recommendation', methods=['POST'])
+def api_ai_recommendation():
+    """Local AI-like advisor for recommending NIST method.
+
+    No cloud calls. Uses deterministic heuristics over detected device metadata
+    and user intent flags. Returns a structured recommendation with rationale
+    and confidence so UI can present it as an AI suggestion.
+    """
+    global devices
+    payload = request.get_json() or {}
+    device_path = payload.get("device")
+    will_reuse = bool(payload.get("will_reuse", True))
+    leaves_control = bool(payload.get("leaves_control", False))
+    sensitivity = (payload.get("sensitivity") or "moderate").lower()
+
+    # Refresh device list if needed
+    if not devices:
+        devices = get_devices()
+
+    # Find device metadata
+    meta: Dict[str, Any] = {}
+    for d in devices:
+        if device_path and (d.get("path") == device_path or device_path.endswith(f"/{d.get('name')}") or device_path == f"/dev/{d.get('name')}"):
+            meta = d
+            break
+
+    # Normalize fields
+    tran = (str(meta.get("tran") or meta.get("transport") or "")).lower()
+    model = str(meta.get("model") or "Unknown")
+    media_type = str(meta.get("media_type") or "").lower()
+    size = str(meta.get("size") or "")
+
+    # AI Advisor: Smart recommendation between Purge, Clear, and Destroy
+    rec_method = SanitizationMethod.CLEAR
+    rec_technique = SanitizationTechnique.SINGLE_PASS_OVERWRITE
+    rationale_parts: List[str] = []
+    confidence = 0.70
+    warnings: List[str] = []
+
+    # DESTROY: Highest security - when device won't be reused and data is highly sensitive
+    if not will_reuse and sensitivity == "high":
+        rec_method = SanitizationMethod.DESTROY
+        rec_technique = SanitizationTechnique.PHYSICAL_DESTRUCTION
+        confidence = 0.95
+        rationale_parts.append(f"Device will not be reused after sanitization")
+        rationale_parts.append(f"Data sensitivity level is HIGH (confidential/classified information)")
+        rationale_parts.append(f"Physical destruction provides 100% data elimination guarantee")
+        rationale_parts.append(f"Most secure method per NIST SP 800-88r2 for non-reusable high-sensitivity media")
+    
+    # PURGE: For SSDs/NVMe or when device leaves physical control
+    elif (any(x in tran for x in ["nvme", "sata", "ata"]) or 
+          media_type in ["ssd", "flash", "nvme"] or 
+          leaves_control or 
+          sensitivity == "high"):
+        rec_method = SanitizationMethod.PURGE
+        rec_technique = SanitizationTechnique.SSD_SECURE_ERASE
+        confidence = 0.88
+        
+        if any(x in tran for x in ["nvme", "sata", "ata"]) or media_type in ["ssd", "flash", "nvme"]:
+            interface_type = "NVMe" if "nvme" in tran else "SATA" if "sata" in tran else "ATA" if "ata" in tran else "SSD"
+            rationale_parts.append(f"Detected {interface_type} solid-state drive (SSD/NVMe)")
+            rationale_parts.append(f"SSDs use wear leveling - data may exist in areas not accessible to overwrite")
+            rationale_parts.append(f"Purge uses drive controller's built-in secure erase to reach all storage cells")
+            rationale_parts.append(f"More effective than simple overwrite for flash-based storage")
+        
+        if leaves_control:
+            rationale_parts.append(f"Device will leave your physical custody after sanitization")
+            rationale_parts.append(f"Purge ensures data cannot be recovered even with advanced forensic tools")
+            rationale_parts.append(f"Required for devices leaving organizational control per NIST guidelines")
+        
+        if sensitivity == "high":
+            rationale_parts.append(f"High sensitivity data requires stronger sanitization than Clear method")
+            rationale_parts.append(f"Purge provides cryptographic-level data elimination")
+    
+    # CLEAR: For traditional HDDs with moderate sensitivity
+    else:
+        rec_method = SanitizationMethod.CLEAR
+        rec_technique = SanitizationTechnique.SINGLE_PASS_OVERWRITE
+        confidence = 0.80
+        rationale_parts.append(f"Detected traditional magnetic hard drive (HDD)")
+        rationale_parts.append(f"Data sensitivity level is MODERATE (sensitive but not classified)")
+        rationale_parts.append(f"Single-pass overwrite is effective for magnetic media")
+        rationale_parts.append(f"Device will remain in your custody after sanitization")
+        rationale_parts.append(f"Cost-effective method that meets NIST SP 800-88r2 requirements")
+
+    # Warnings for suboptimal choices
+    if rec_method == SanitizationMethod.CLEAR and ("nvme" in tran or media_type in ["ssd", "flash", "nvme"]):
+        warnings.append("⚠️ Consider Purge for SSDs; Clear may not reach all storage cells due to wear leveling")
+    
+    if rec_method == SanitizationMethod.PURGE and not will_reuse and sensitivity == "high":
+        warnings.append("💡 For maximum security with high sensitivity data, consider Destroy if device won't be reused")
+
+    rationale = "; ".join(rationale_parts) or "Applied device-type and custody heuristics per NIST 800-88r2 guidance"
+
+    return jsonify({
+        "method": rec_method.value,
+        "technique": rec_technique.value,
+        "rationale": rationale,
+        "confidence": round(confidence, 2),
+        "warnings": warnings,
+        "advisor_mode": "local"
+    })
+
+
 @app.route('/api/config')
 def api_config():
     """Expose minimal runtime configuration to the UI."""
@@ -767,14 +897,15 @@ def api_wipe():
     sensitivity = data.get('sensitivity', 'moderate')
     will_reuse = data.get('will_reuse', True)
     leaves_control = data.get('leaves_control', False)
+    chosen_method = data.get('chosen_method')
     
     if not device_path:
         return jsonify({"error": "No device specified"}), 400
     
     # Start NIST-compliant wipe in background thread
     thread = threading.Thread(
-        target=run_wipe_process, 
-        args=(device_path, sensitivity, will_reuse, leaves_control)
+        target=run_wipe_process,
+        args=(device_path, sensitivity, will_reuse, leaves_control, chosen_method)
     )
     thread.daemon = True
     thread.start()
@@ -851,8 +982,37 @@ def run_production_wipe(device_path: str):
             return
 
         wipe_status["status_message"] = "Executing production wipe..."
+
+        # Track progress/ETA during production wipe using callback
+        total_bytes = _parse_size_to_bytes(getattr(selected, "size", ""))
+        wipe_status["total_bytes"] = total_bytes
+        wipe_status["bytes_done"] = 0
+        last_bytes = 0
+        last_time = time.time()
+        ema_bps = 0.0
+
+        def progress_callback(bytes_done: int, total_cb: int):
+            nonlocal last_bytes, last_time, ema_bps
+            now = time.time()
+            dt = max(1e-3, now - last_time)
+            dbytes = max(0, bytes_done - last_bytes)
+            inst_bps = dbytes / dt
+            ema_bps = _smooth_throughput(ema_bps, inst_bps)
+            last_time = now
+            last_bytes = bytes_done
+
+            wipe_status["bytes_done"] = bytes_done
+            if total_bytes > 0:
+                prog = min(100, int(bytes_done * 100 / total_bytes))
+                wipe_status["progress"] = prog
+                remaining = max(0, total_bytes - bytes_done)
+                if ema_bps > 0:
+                    eta_sec = int(remaining / ema_bps)
+                    wipe_status["time_remaining"] = format_time_remaining(eta_sec)
+            wipe_status["throughput"] = f"{int(ema_bps/1024/1024)} MB/s"
+
         dispatcher = RealDispatcher()
-        success = dispatcher.run_one_click_wipe(selected)
+        success = dispatcher.run_one_click_wipe(selected, progress_callback)
         wipe_status["progress"] = 100
         wipe_status["running"] = False
         wipe_status["completed"] = True

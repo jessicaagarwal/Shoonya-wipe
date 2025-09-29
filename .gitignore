@@ -90,3 +90,4 @@ virtual_media/*
 # Backup files
 *.bak
 *.backup
+NUL
