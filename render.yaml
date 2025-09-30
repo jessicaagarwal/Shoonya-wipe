@@ -18,10 +18,7 @@ services:
         value: "0"
       - key: SIM_TOTAL_SECONDS
         value: "90"
-    disks:
-      - name: artifacts
-        mountPath: /app/out
-        sizeGB: 1
-      - name: exports
-        mountPath: /app/exports
-        sizeGB: 1
+    disk:
+      name: artifacts
+      mountPath: /app/out
+      sizeGB: 1
