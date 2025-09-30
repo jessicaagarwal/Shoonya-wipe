@@ -16,12 +16,9 @@ from typing import List, Dict, Any
 from datetime import datetime
 import uuid
 
-# Force enable production mode for testing - MUST be before any imports
-os.environ["WEB_PRODUCTION_MODE"] = "1"
-os.environ["SHOONYA_PRODUCTION_MODE"] = "1"
-print("DEBUG: Forced production mode enabled in code")
-print(f"DEBUG: WEB_PRODUCTION_MODE = {os.environ.get('WEB_PRODUCTION_MODE')}")
-print(f"DEBUG: SHOONYA_PRODUCTION_MODE = {os.environ.get('SHOONYA_PRODUCTION_MODE')}")
+# Safe defaults: do not force production in web mode (cloud-safe)
+os.environ.setdefault("WEB_PRODUCTION_MODE", "0")
+os.environ.setdefault("SHOONYA_PRODUCTION_MODE", "0")
 
 try:
     from flask import Flask, render_template, request, jsonify, send_file
@@ -84,40 +81,22 @@ def web_production_allowed() -> bool:
     - If in Docker, also require DOCKER_PRODUCTION_ALLOWED=1
     - If POSIX, running as root (geteuid == 0). On Windows, skip this check.
     """
-    # FORCE ENABLE FOR TESTING
-    print("DEBUG: FORCING production mode to True for testing")
-    return True
-    
     web_prod = os.environ.get("WEB_PRODUCTION_MODE", "0")
     shoonya_prod = os.environ.get("SHOONYA_PRODUCTION_MODE", "0")
-    
-    print(f"DEBUG: WEB_PRODUCTION_MODE = '{web_prod}'")
-    print(f"DEBUG: SHOONYA_PRODUCTION_MODE = '{shoonya_prod}'")
-    print(f"DEBUG: All env vars: {dict(os.environ)}")
-    
-    if web_prod != "1":
-        print("DEBUG: WEB_PRODUCTION_MODE not set to 1")
+
+    if web_prod != "1" or shoonya_prod != "1":
         return False
-    if shoonya_prod != "1":
-        print("DEBUG: SHOONYA_PRODUCTION_MODE not set to 1")
-        return False
-    
-    # Allow production in Docker if explicitly enabled
+
+    # Allow production in Docker only if explicitly enabled
     if is_running_in_docker():
-        docker_allowed = os.environ.get("DOCKER_PRODUCTION_ALLOWED", "0") == "1"
-        print(f"DEBUG: In Docker, DOCKER_PRODUCTION_ALLOWED = {docker_allowed}")
-        return docker_allowed
-    
+        return os.environ.get("DOCKER_PRODUCTION_ALLOWED", "0") == "1"
+
     try:
         if hasattr(os, "geteuid"):
-            is_root = os.geteuid() == 0
-            print(f"DEBUG: POSIX system, is_root = {is_root}")
-            return is_root
+            return os.geteuid() == 0
         # Windows – no geteuid
-        print("DEBUG: Windows system, allowing production")
         return True
-    except Exception as e:
-        print(f"DEBUG: Exception checking privileges: {e}")
+    except Exception:
         return False
 
 
@@ -2109,7 +2088,8 @@ if __name__ == '__main__':
             f.write(html_content)
     
     print("Shoonya WIPE Web GUI starting...")
-    print("Open your browser to: http://localhost:5000")
+    port = int(os.environ.get("PORT", "5000"))
+    print(f"Open your browser to: http://localhost:{port}")
     print("One-click interface ready!")
     
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False)
