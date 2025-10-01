@@ -127,7 +127,6 @@ def main():
         # Safe mode one-click engine
         from engine.safe.dispatcher import execute
         from engine.safe.utils import Device
-        import os
         
         # Create a test device
         device = Device(
