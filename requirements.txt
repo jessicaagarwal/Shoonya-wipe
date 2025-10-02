@@ -1,4 +1,4 @@
-# SafeErasePro Python Dependencies
+# Shoonya Wipe Python Dependencies
 
 # PDF Generation
 PyPDF2==3.0.1
@@ -19,6 +19,9 @@ rich==13.7.0
 
 # Logging and configuration
 python-dotenv==1.0.0
+
+# GUI
+Flask==3.0.0
 
 # Development and testing
 pytest==7.4.3

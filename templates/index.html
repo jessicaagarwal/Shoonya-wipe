@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoonya WIPE - NIST SP 800-88r2 Compliant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            border-right: 1px solid #2a2a2a;
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo-section {
+            padding: 0 30px 40px;
+            border-bottom: 1px solid #2a2a2a;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .logo-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-line {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            margin-bottom: 4px;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: #1e40af;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 1px;
+        }
+
+        .logo-bottom {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e40af;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nvme-icon {
+            width: 24px;
+            height: 32px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 3px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 2px;
+        }
+
+        .nvme-icon::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 1px;
+        }
+
+        .nvme-icon::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            right: 2px;
+            height: 1px;
+            background: #ffffff;
+            border-radius: 1px;
+        }
+
+        .nvme-text {
+            font-size: 0.6rem;
+            color: #ffffff;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .compliance-badge {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #888;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+        }
+
+        .help-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .version {
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0;
+            background: #0f0f0f;
+        }
+
+        .top-bar {
+            background: #1a1a1a;
+            border-bottom: 1px solid #2a2a2a;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .refresh-btn {
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #888;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            background: #3a3a3a;
+            color: #fff;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+        }
+
+        /* Step 1: Device Selection */
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .device-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .device-card.selected {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .device-card.system {
+            border-color: #ff4444;
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        .device-card.external {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .device-card.archive {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .device-card.ewaste {
+            border-color: #ff8800;
+            background: rgba(255, 136, 0, 0.05);
+        }
+
+        .device-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .device-type {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .device-icon.system {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .device-icon.external {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .device-icon.archive {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .device-icon.ewaste {
+            background: #ff8800;
+            color: #000;
+        }
+
+        .device-info {
+            margin-bottom: 16px;
+        }
+
+        .device-description {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .device-health {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .health-good {
+            color: #00ff88;
+        }
+
+        .health-warning {
+            color: #ff8800;
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .status-protected {
+            color: #ff4444;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .device-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-select {
+            background: #00ff88;
+            color: #000;
+        }
+
+        .btn-select:hover {
+            background: #00e677;
+        }
+
+        .btn-cannot {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #00d4ff, #0080ff);
+            color: #000;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Step 2: Method Suggestion */
+        .method-recommendations {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .method-primary {
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            border-radius: 12px;
+            padding: 24px;
+            color: #000;
+        }
+
+        .method-secondary {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .method-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2a2a2a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .method-card:hover { border-color: #00d4ff; }
+        .method-card.selected { border-color: #00ff88; box-shadow: 0 0 0 1px rgba(0,255,136,0.2) inset; }
+
+        .method-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .method-badge {
+            background: rgba(0, 0, 0, 0.2);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .method-description {
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .method-diagram {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .method-flow {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .override-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .override-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .override-input {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .form-control {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        /* Step 3: Double Confirmation */
+        .warning-box {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid #ff4444;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .warning-icon {
+            color: #ff4444;
+            font-size: 1.2rem;
+        }
+
+        .warning-text {
+            color: #ff4444;
+            font-weight: 600;
+        }
+
+        .confirmation-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        .input-field.valid {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .input-status {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00ff88;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-override {
+            background: #ff8800;
+            color: #000;
+        }
+
+        .btn-override:hover {
+            background: #e67700;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #00d4ff, #0080ff);
+            color: #000;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Step 4: Progress & Certificate */
+        .progress-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(#00d4ff 0deg, #00d4ff var(--progress, 0deg), #3a3a3a var(--progress, 0deg));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .progress-circle::before {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            background: #1a1a1a;
+            border-radius: 50%;
+        }
+
+        .progress-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .progress-percent {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .progress-details {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            color: #888;
+        }
+
+        .detail-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .complete-section {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .complete-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #00ff88, #00d4ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 4rem;
+            color: #000;
+        }
+
+        .complete-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .complete-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .complete-item {
+            text-align: center;
+        }
+
+        .complete-item h4 {
+            color: #00d4ff;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .complete-item p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .certificate-section {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 30px 0;
+        }
+
+        .certificate-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn-download {
+            background: #00ff88;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #00e677;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .method-recommendations {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 20px;
+            }
+            
+            .device-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-line"></div>
+                    <div class="logo-text">Shoonya</div>
+                    <div class="logo-bottom">
+                        W<span class="nvme-icon">
+                            <span class="nvme-text">NVMe</span>
+                        </span>PE
+                    </div>
+                </div>
+                <div class="compliance-badge">NIST SP 800-88r2 Compliant</div>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item">
+                    <div class="nav-link active" onclick="setStep(1)">
+                        <i class="fas fa-hdd"></i>
+                        Device Selection
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-link" onclick="setStep(2)">
+                        <i class="fas fa-brain"></i>
+                        Method Suggestion
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-link" onclick="setStep(3)">
+                        <i class="fas fa-check-double"></i>
+                        Double Confirmation
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <div class="nav-link" onclick="setStep(4)">
+                        <i class="fas fa-certificate"></i>
+                        Wipe Progress & Certificate
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="#" class="help-link">Help / About</a>
+                <div class="version">v1.2.9</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title" id="pageTitle">Step 1 - Device Selection</h1>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div id="prodToggleWrap" class="hidden" style="display:flex;align-items:center;gap:8px;background:#2a2a2a;border:1px solid #3a3a3a;padding:8px 12px;border-radius:8px;">
+                        <input type="checkbox" id="prodToggle" />
+                        <label for="prodToggle" style="color:#ff8800;font-weight:600;cursor:pointer;">Production Mode</label>
+                    </div>
+                    <button class="refresh-btn" onclick="refreshDevices()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Devices
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Step 1: Device Selection -->
+                <div id="step1" class="step-content">
+                    <div class="device-grid" id="deviceGrid">
+                        <!-- Devices will be populated by JavaScript -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button class="btn btn-next" id="nextBtn" disabled onclick="goToNextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Method Suggestion -->
+                <div id="step2" class="step-content hidden">
+                    <div class="method-recommendations">
+                        <div class="method-primary">
+                            <div class="method-title" id="primaryMethodTitle">PURGE</div>
+                            <div class="method-badge">NIST Compliant</div>
+                            <div class="method-description" id="primaryMethodDesc">
+                                Applies logical techniques to sanitize all user-addressable data. 
+                                Data is unrecoverable. Suitable for confidential data.
+                            </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px 0;">
+                                <div class="method-badge" id="aiModeBadge">AI help runs on this computer (no internet)</div>
+                                <div class="method-badge" id="aiConfidence">About 0% sure</div>
+                                <div class="method-badge" id="aiTechnique">Erase by writing over the drive once (Clear)</div>
+                            </div>
+                            <div id="aiWarnings" style="color:#ffcc66;font-weight:600;font-size:0.85rem;margin-bottom:8px;"></div>
+                            <div id="aiWhy" style="background: rgba(0,0,0,0.08); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                                <div style="font-weight:700;margin-bottom:6px;color:#000">Why this was suggested</div>
+                                <ul id="aiWhyList" style="margin-left:18px;color:#000"></ul>
+                            </div>
+                            <div class="method-diagram">
+                                <i class="fas fa-server" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                <div class="method-flow">Device Type → AI Analysis Method → NIST 800-88r2</div>
+                            </div>
+                            <div style="margin-top:8px;color:#000;font-weight:700">Selected: <span id="selectedMethod">Purge</span></div>
+                        </div>
+                        <div class="method-secondary">
+                            <div class="method-card" id="cardPurge">
+                                <div class="method-title" style="color: #00d4ff;">Purge</div>
+                                <div class="method-description" style="color: #888;">
+                                    SSD/NVMe, use controller-assisted secure erase per NIST 800-88r2.
+                                </div>
+                            </div>
+                            <div class="method-card" id="cardClear">
+                                <div class="method-title" style="color: #00ff88;">Clear</div>
+                                <div class="method-description" style="color: #888;">
+                                    HDD, 5 TB Western Digital. Data is Health Good.
+                                </div>
+                            </div>
+                            <div class="method-card" id="cardDestroy">
+                                <div class="method-title" style="color: #00d4ff;">Destroy</div>
+                                <div class="method-description" style="color: #888;">
+                                    DGID, 213 2, AI Purge Erase. Yes, Health Good.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="override-section">
+                        <div class="override-title">Override Method</div>
+                        <div class="override-input">
+                            <input type="text" class="form-control" id="overrideInput" placeholder="Generic Method e.g. Clear/PURGE/Destroy">
+                            <button class="btn btn-select" onclick="applyOverride()">Select</button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button class="btn btn-next" onclick="goToNextStep()">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Double Confirmation -->
+                <div id="step3" class="step-content hidden">
+                    <div class="warning-box">
+                        <i class="fas fa-exclamation-triangle warning-icon"></i>
+                        <div class="warning-text">
+                            WARNING: This action is irreversible. All data on device will be permanently erased.
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-inputs">
+                        <div style="color:#aaa;font-size:0.9rem;margin-bottom:6px">Expected device path: <code id="expectedPathLabel">/dev/sdx</code> <button class="btn btn-select" style="padding:4px 10px" onclick="copyExpectedPath()">Copy</button></div>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="text" class="input-field" id="confirm1" placeholder="Type Device Path" oninput="checkConfirmation()">
+                            <i class="fas fa-check input-status" id="status1" style="display: none;"></i>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="text" class="input-field" id="confirm2" placeholder="Confirm Device Path" oninput="checkConfirmation()">
+                            <i class="fas fa-check input-status" id="status2" style="display: none;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-override">Override & Choose Another Method</button>
+                        <button class="btn btn-start" id="startWipeBtn" disabled onclick="startWipe()">Start Wipe</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Progress & Certificate -->
+                <div id="step4" class="step-content hidden">
+                    <div id="progressView">
+                        <div class="progress-section">
+                            <div>
+                                <div class="progress-circle" id="progressCircle">
+                                    <div class="progress-content">
+                                        <div class="progress-percent" id="progressPercent">0%</div>
+                                        <div class="progress-label">Complete</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="progress-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Speed:</span>
+                                    <span class="detail-value" id="speed">0 MB/s</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Passes Completed:</span>
+                                    <span class="detail-value" id="passes">0 of 3</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Estimated Time Remaining:</span>
+                                    <span class="detail-value" id="timeRemaining">00:00:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="completeView" class="hidden">
+                        <div class="complete-section">
+                            <div class="complete-icon">✓</div>
+                            <div class="complete-title">Wipe Complete!</div>
+                            
+                            <div class="complete-details">
+                                <div class="complete-item">
+                                    <h4>Device</h4>
+                                    <p id="completedDevice">/dev/sdx1</p>
+                                </div>
+                                <div class="complete-item">
+                                    <h4>Method</h4>
+                                    <p id="completedMethod">PURGE</p>
+                                </div>
+                                <div class="complete-item">
+                                    <h4>Verification</h4>
+                                    <p id="verificationStatus">OK</p>
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-section">
+                                <div class="certificate-preview">
+                                    NIST SP 800-88 Compliant Certificate
+                                </div>
+                                <div class="download-buttons">
+                                    <a href="#" class="btn-download" onclick="downloadFile('nist_certificate.pdf')">
+                                        Download nist_certificate.pdf
+                                    </a>
+                                    <a href="#" class="btn-download" onclick="downloadFile('wipelog_signed.json')">
+                                        Download wipelog_signed.json
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-next" onclick="startNewWipe()">Start Wipe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedDevice = null;
+        let statusInterval = null;
+        let chosenMethod = 'PURGE';
+
+        function setStep(step) {
+            currentStep = step;
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.nav-link')[step - 1].classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.step-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            
+            // Update page title
+            const titles = [
+                'Step 1 - Device Selection',
+                'Step 2 - Method Suggestion', 
+                'Step 3 - Double Confirmation',
+                'Step 4 - Wipe Progress & Certificate'
+            ];
+            document.getElementById('pageTitle').textContent = titles[step - 1];
+        }
+
+        function refreshDevices() {
+            fetch('/api/devices')
+                .then(response => response.json())
+                .then(devices => {
+                    renderDevices(devices || []);
+                })
+                .catch(error => {
+                    console.error('Error refreshing devices:', error);
+                });
+        }
+
+        function renderDevices(devices) {
+            const grid = document.getElementById('deviceGrid');
+            grid.innerHTML = '';
+            
+            devices.forEach(d => {
+                // Normalize data across platforms
+                const name = d.name || (d.path ? String(d.path).split('/')?.pop() : 'disk');
+                const path = d.path || `/dev/${name}`;
+                const size = d.size || '';
+                const model = d.model || 'Unknown';
+                const tran = (d.tran || d.InterfaceType || '').toLowerCase();
+                const isSystem = (d.system || false) || false; // not always provided
+                
+                // Map to visual categories
+                let type = 'external';
+                if (isSystem) type = 'system';
+                else if (tran.includes('nvme')) type = 'archive';
+                else if (tran.includes('usb')) type = 'external';
+                
+                const device = {
+                    name,
+                    path,
+                    type,
+                    tran,
+                    description: `${(tran || 'storage').toUpperCase()} • ${size} • ${model}`,
+                    health: 'Good',
+                    status: isSystem ? 'Protected System Drive' : null,
+                    selectable: !isSystem
+                };
+                const card = document.createElement('div');
+                card.className = `device-card ${device.type}`;
+                card.onclick = () => selectDevice(device, card);
+                
+                const healthClass = device.health.includes('Warning') ? 'health-warning' : 'health-good';
+                const iconClass = device.type === 'system' ? 'fas fa-lock' : 
+                                device.type === 'ewaste' ? 'fas fa-trash' : 'fas fa-hdd';
+                
+                card.innerHTML = `
+                    <div class="device-header">
+                        <div class="device-type">${device.name}</div>
+                        <div class="device-icon ${device.type}">
+                            <i class="${iconClass}"></i>
+                        </div>
+                    </div>
+                    <div class="device-info">
+                        <div class="device-description">${device.description}</div>
+                        <div class="device-health ${healthClass}">
+                            <i class="fas fa-heartbeat"></i>
+                            Health: ${device.health}
+                        </div>
+                        ${device.status ? `
+                            <div class="device-status">
+                                <i class="fas fa-shield-alt"></i>
+                                <span class="status-protected">${device.status}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="device-actions">
+                        ${device.selectable ? 
+                            '<button class="btn btn-select">Select</button>' :
+                            '<button class="btn btn-cannot">Cannot Select</button>'
+                        }
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function selectDevice(device, cardElement) {
+            if (!device.selectable) return;
+            
+            // Remove previous selection
+            document.querySelectorAll('.device-card').forEach(card => card.classList.remove('selected'));
+            
+            // Select new device
+            cardElement.classList.add('selected');
+            selectedDevice = device;
+            
+            // Enable next button
+            document.getElementById('nextBtn').disabled = false;
+            // Update expected path label for step 3
+            const expected = device.path || `/dev/${device.name}`;
+            document.getElementById('expectedPathLabel').textContent = expected;
+        }
+
+        function goToNextStep() {
+            if (currentStep === 1) {
+                // Compute recommendation before showing step 2
+                if (selectedDevice) {
+                    // Query local AI advisor for recommendation
+                    fetch('/api/ai/recommendation', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            device: selectedDevice.path || `/dev/${selectedDevice.name}`,
+                            sensitivity: 'moderate',
+                            will_reuse: true,
+                            leaves_control: false
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(rec => {
+                        const method = rec?.method || 'Clear';
+                        const desc = rec?.rationale || 'NIST 800-88r2 aligned recommendation';
+                        chosenMethod = method;
+                        document.getElementById('primaryMethodTitle').textContent = method;
+                        document.getElementById('primaryMethodDesc').textContent = desc;
+                        document.getElementById('selectedMethod').textContent = chosenMethod;
+                        // AI meta badges
+                        const mode = rec?.advisor_mode || 'local';
+                        const conf = typeof rec?.confidence === 'number' ? Math.round(rec.confidence * 100) : 0;
+                        const tech = rec?.technique || (method === 'Purge' ? 'SSD Secure Erase' : (method === 'Destroy' ? 'Physical Destruction' : 'Single Pass Overwrite'));
+                        document.getElementById('aiConfidence').textContent = `About ${conf}% sure`;
+                        // Human-friendly technique phrasing
+                        const friendlyTech = (m => {
+                            if (m === 'Purge') return 'Use the drive\'s secure erase for SSDs (Purge)';
+                            if (m === 'Destroy') return 'Physically destroy the drive (Destroy)';
+                            return 'Erase by writing over the drive once (Clear)';
+                        })(method);
+                        document.getElementById('aiTechnique').textContent = friendlyTech;
+                        const warns = Array.isArray(rec?.warnings) ? rec.warnings : [];
+                        document.getElementById('aiWarnings').textContent = warns.length ? `⚠ ${warns.join(' • ')}` : '';
+                        // Why this was suggested — split rationale into bullets at ';' or '.'
+                        const reasons = String(desc).split(/;|\./).map(s => s.trim()).filter(Boolean).slice(0, 4);
+                        const whyList = document.getElementById('aiWhyList');
+                        whyList.innerHTML = '';
+                        reasons.forEach(r => {
+                            const li = document.createElement('li');
+                            li.textContent = r;
+                            whyList.appendChild(li);
+                        });
+                        // clear any manual selections
+                        document.getElementById('cardPurge').classList.remove('selected');
+                        document.getElementById('cardClear').classList.remove('selected');
+                        document.getElementById('cardDestroy').classList.remove('selected');
+                    })
+                    .catch(() => {
+                        // Fallback to simple heuristic
+                        const tran = (selectedDevice.tran || '').toLowerCase();
+                        let method = 'Clear';
+                        let desc = 'Single-pass overwrite for magnetic media';
+                        if (tran.includes('nvme') || tran.includes('sata') || tran.includes('ata')) {
+                            method = 'Purge';
+                            desc = 'SSD secure erase per NIST SP 800-88r2';
+                        }
+                        chosenMethod = method;
+                        document.getElementById('primaryMethodTitle').textContent = method;
+                        document.getElementById('primaryMethodDesc').textContent = desc;
+                        document.getElementById('selectedMethod').textContent = chosenMethod;
+                    });
+                }
+            }
+            if (currentStep < 4) {
+                setStep(currentStep + 1);
+            }
+        }
+
+        function checkConfirmation() {
+            const path1 = document.getElementById('confirm1').value.trim();
+            const path2 = document.getElementById('confirm2').value.trim();
+            const expectedPath = selectedDevice ? (selectedDevice.path || `/dev/${selectedDevice.name}`) : '';
+            
+            const isValid1 = path1 === expectedPath;
+            const isValid2 = path2 === expectedPath;
+            
+            // Update input styling
+            document.getElementById('confirm1').classList.toggle('valid', isValid1);
+            document.getElementById('confirm2').classList.toggle('valid', isValid2);
+            
+            // Update status icons
+            document.getElementById('status1').style.display = isValid1 ? 'block' : 'none';
+            document.getElementById('status2').style.display = isValid2 ? 'block' : 'none';
+            
+            // Enable start button if both are valid
+            document.getElementById('startWipeBtn').disabled = !(isValid1 && isValid2);
+        }
+
+        function startWipe() {
+            if (!selectedDevice) return;
+            setStep(4);
+            const isProd = document.getElementById('prodToggle')?.checked;
+            const endpoint = isProd ? '/api/production_wipe' : '/api/wipe';
+            
+            if (isProd) {
+                const sure = confirm('⚠️ PRODUCTION MODE: This will erase REAL data on the selected device. Continue?');
+                if (!sure) { setStep(3); return; }
+            }
+
+            fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    device: selectedDevice.path || `/dev/${selectedDevice.name}`,
+                    sensitivity: 'moderate',
+                    will_reuse: true,
+                    leaves_control: false,
+                    chosen_method: chosenMethod
+                })
+            })
+            .then(() => {
+                // Start polling real status
+                if (statusInterval) clearInterval(statusInterval);
+                statusInterval = setInterval(checkStatus, 1000);
+            })
+            .catch(err => console.error('Failed to start wipe:', err));
+        }
+
+        function checkStatus() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(status => {
+                    updateProgressFromStatus(status);
+                    if (!status.running && status.completed) {
+                        clearInterval(statusInterval);
+                        showComplete(status);
+                    }
+                })
+                .catch(err => console.error('Status error:', err));
+        }
+
+        function updateProgressFromStatus(status) {
+            const progressCircle = document.getElementById('progressCircle');
+            const progressPercent = document.getElementById('progressPercent');
+            const progress = Number(status.progress || 0);
+            progressCircle.style.setProperty('--progress', `${progress * 3.6}deg`);
+            progressPercent.textContent = `${Math.round(progress)}%`;
+            document.getElementById('speed').textContent = status.throughput || '0 MB/s';
+            document.getElementById('passes').textContent = `${status.current_pass || 1} of ${status.total_passes || 1}`;
+            document.getElementById('timeRemaining').textContent = status.time_remaining || 'Calculating...';
+        }
+
+        function showComplete(status) {
+            document.getElementById('progressView').classList.add('hidden');
+            document.getElementById('completeView').classList.remove('hidden');
+            document.getElementById('completedDevice').textContent = selectedDevice?.path || `/dev/${selectedDevice?.name || 'sdx1'}`;
+            document.getElementById('completedMethod').textContent = status?.nist_method || 'Clear';
+            document.getElementById('verificationStatus').textContent = status?.verification_status || 'unknown';
+        }
+
+        function downloadFile(filename) {
+            const link = document.createElement('a');
+            link.href = `/download?path=/app/out/${filename}`;
+            link.download = filename;
+            link.click();
+        }
+
+        function startNewWipe() {
+            // Reset to step 1
+            setStep(1);
+            selectedDevice = null;
+            document.getElementById('nextBtn').disabled = true;
+            
+            // Reset confirmation inputs
+            document.getElementById('confirm1').value = '';
+            document.getElementById('confirm2').value = '';
+            document.getElementById('confirm1').classList.remove('valid');
+            document.getElementById('confirm2').classList.remove('valid');
+            document.getElementById('status1').style.display = 'none';
+            document.getElementById('status2').style.display = 'none';
+            document.getElementById('startWipeBtn').disabled = true;
+            
+            // Reset progress view
+            document.getElementById('progressView').classList.remove('hidden');
+            document.getElementById('completeView').classList.add('hidden');
+            
+            // Reset progress
+            document.getElementById('progressCircle').style.setProperty('--progress', '0deg');
+            document.getElementById('progressPercent').textContent = '0%';
+            
+            // Refresh devices
+            refreshDevices();
+        }
+
+        // Method selection handlers
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#cardPurge')) {
+                chosenMethod = 'PURGE';
+                document.getElementById('selectedMethod').textContent = chosenMethod;
+                document.getElementById('cardPurge').classList.add('selected');
+                document.getElementById('cardClear').classList.remove('selected');
+                document.getElementById('cardDestroy').classList.remove('selected');
+            } else if (e.target.closest('#cardClear')) {
+                chosenMethod = 'Clear';
+                document.getElementById('selectedMethod').textContent = chosenMethod;
+                document.getElementById('cardClear').classList.add('selected');
+                document.getElementById('cardPurge').classList.remove('selected');
+                document.getElementById('cardDestroy').classList.remove('selected');
+            } else if (e.target.closest('#cardDestroy')) {
+                chosenMethod = 'Destroy';
+                document.getElementById('selectedMethod').textContent = chosenMethod;
+                document.getElementById('cardDestroy').classList.add('selected');
+                document.getElementById('cardPurge').classList.remove('selected');
+                document.getElementById('cardClear').classList.remove('selected');
+            }
+        });
+
+        function applyOverride() {
+            const val = (document.getElementById('overrideInput').value || '').trim();
+            if (!val) return;
+            chosenMethod = val;
+            document.getElementById('selectedMethod').textContent = chosenMethod;
+        }
+
+        function copyExpectedPath() {
+            const p = document.getElementById('expectedPathLabel').textContent;
+            navigator.clipboard?.writeText(p);
+        }
+
+        // Load server config to show production toggle if allowed
+        fetch('/api/config').then(r=>r.json()).then(cfg=>{
+            if (cfg.allow_production) {
+                document.getElementById('prodToggleWrap').classList.remove('hidden');
+            }
+        }).catch(()=>{});
+
+        // Initialize
+        refreshDevices();
+    </script>
+</body>
+</html>

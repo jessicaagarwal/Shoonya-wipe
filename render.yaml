@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: shoonya-wipe
+    env: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: RUNNING_IN_DOCKER
+        value: "1"
+      - key: ENABLE_REAL_WIPE
+        value: "0"
+      - key: WEB_PRODUCTION_MODE
+        value: "0"
+      - key: SHOONYA_PRODUCTION_MODE
+        value: "0"
+      - key: SIM_TOTAL_SECONDS
+        value: "90"
+    disk:
+      name: artifacts
+      mountPath: /app/out
+      sizeGB: 1

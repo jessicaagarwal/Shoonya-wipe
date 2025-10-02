@@ -1,3 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local outputs and keys (dev only)
+out/*
+!out/.gitkeep
+exports/*
+!exports/.gitkeep
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
 # SafeErasePro Git Ignore
 
 # Python
@@ -12,8 +26,12 @@ ENV/
 env.bak/
 venv.bak/
 *.egg-info/
-dist/
+# Keep dist in Git (portable/verifier deliverables).
+# Ignore only temporary build artifacts inside dist if any
 build/
+dist/**/*.zip
+dist/**/*.tar
+dist/**/*.tar.gz
 
 # IDE
 .vscode/
@@ -60,13 +78,16 @@ coverage.xml
 .pytest_cache/
 
 # Certificates and keys (for development)
-*.pem
 *.key
 *.crt
 *.p12
 certificates/
-keys/
+keys/*
+!keys/.gitkeep
+virtual_media/*
+!virtual_media/.gitkeep
 
 # Backup files
 *.bak
 *.backup
+NUL
