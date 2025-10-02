@@ -170,11 +170,10 @@ docker compose up -d
 
 ### 📞 **Contact Information**
 
-- **Project Lead**: [Your Name]
-- **Email**: [Your Email]
-- **Phone**: [Your Phone]
-- **GitHub**: https://github.com/yourusername/shoonya-wipe
-- **Docker Hub**: https://hub.docker.com/r/yourusername/shoonya-wipe
+- **Project Lead**: [Jessica Agarwal]
+- **Email**: [agarwaljessica25@gmail.com]
+- **GitHub**: https://github.com/jessicaagarwal/shoonya-wipe
+- **Docker Hub**: https://hub.docker.com/repository/docker/jessicaagarwal/shoonya-wipe/general
 
 ---
 

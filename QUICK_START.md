@@ -5,7 +5,7 @@
 ### Step 1: Start the Application
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/jessicaagarwal/shoonya-wipe.git
 cd shoonya-wipe
 
 # Start with Docker (recommended)

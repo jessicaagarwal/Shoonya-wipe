@@ -57,7 +57,7 @@ A comprehensive, NIST SP 800-88r2 compliant data wiping solution that:
 ### **Docker Environment (Recommended)**
 ```bash
 # 1. Clone and setup
-git clone <repository-url>
+git clone https://github.com/jessicaagarwal/shoonya-wipe.git
 cd shoonya-wipe
 
 # 2. Start the web application
@@ -246,9 +246,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 **Support**
 
-- **Issues:** GitHub Issues
-- **Documentation:** Check the docs/ folder
-- **Questions:** Create a discussion
+- **Issues:** [GitHub Issues](https://github.com/jessicaagarwal/shoonya-wipe/issues)
+- **Documentation:** Complete technical documentation provided
+- **Contact:** agarwaljessica25@gmail.com
+- **Docker Hub:** [jessicaagarwal/shoonya-wipe](https://hub.docker.com/r/jessicaagarwal/shoonya-wipe)
 
 ---
 

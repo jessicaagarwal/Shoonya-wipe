@@ -6,7 +6,7 @@
 #### **Docker Deployment (Recommended)**
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/shoonya-wipe.git
+git clone https://github.com/jessicaagarwal/shoonya-wipe.git
 cd shoonya-wipe
 
 # 2. Start the application
@@ -67,7 +67,7 @@ sudo chown $USER:$USER /opt/shoonya-wipe
 cd /opt/shoonya-wipe
 
 # Clone repository
-git clone https://github.com/your-org/shoonya-wipe.git .
+git clone https://github.com/jessicaagarwal/shoonya-wipe.git .
 
 # Create production environment file
 cat > .env << EOF
@@ -175,13 +175,13 @@ http {
 
     server {
         listen 80;
-        server_name your-domain.com;
+        server_name shoonya-wipe.local;
         return 301 https://$server_name$request_uri;
     }
 
     server {
         listen 443 ssl http2;
-        server_name your-domain.com;
+        server_name shoonya-wipe.local;
 
         ssl_certificate /etc/nginx/ssl/cert.pem;
         ssl_certificate_key /etc/nginx/ssl/key.pem;
@@ -214,7 +214,7 @@ http {
 sudo apt install certbot python3-certbot-nginx -y
 
 # Obtain SSL certificate
-sudo certbot --nginx -d your-domain.com
+sudo certbot --nginx -d shoonya-wipe.local
 
 # Test auto-renewal
 sudo certbot renew --dry-run
@@ -229,7 +229,7 @@ sudo mkdir -p /opt/shoonya-wipe/ssl
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /opt/shoonya-wipe/ssl/key.pem \
     -out /opt/shoonya-wipe/ssl/cert.pem \
-    -subj "/C=IN/ST=State/L=City/O=Organization/CN=your-domain.com"
+    -subj "/C=IN/ST=Delhi/L=New Delhi/O=Shoonya Wipe/CN=shoonya-wipe.local"
 ```
 
 ### 📊 **Monitoring Setup**
