@@ -49,7 +49,7 @@ This guide covers the development setup, architecture, and contribution guidelin
 
 1. **Clone the repository**
 ```bash
-git clone <repository-url>
+git clone https://github.com/jessicaagarwal/shoonya-wipe.git
 cd shoonya-wipe
 ```
 
